@@ -8,9 +8,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\Crypt;
 
-class User extends Authenticatable {
+class User extends Authenticatable implements JWTSubject{
     use Notifiable, SoftDeletes, HasRoles, HasFactory;
 
     /**
@@ -92,5 +93,18 @@ class User extends Authenticatable {
     public function getIndexRouteAttribute() {
         $route = route('admin.users.index');
         return $route;
+    }
+
+    public function getJWTIdentifier() {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims() {
+        return [];
     }
 }

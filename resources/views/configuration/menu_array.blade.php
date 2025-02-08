@@ -103,6 +103,60 @@ $menu = [
             ],
         ],
     ],
+    6 => [
+        'name' => 'City Master',
+        'icon' => 'fa fa-file',
+        'dropdown' => true,
+        'route' => '',
+        'dropdown_items' => [
+            0 => [
+                'name' => 'Add City',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.city_master.create',
+            ],
+            1 => [
+                'name' => 'Manage City',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.city_master.index',
+            ],
+        ],
+    ],
+    7 => [
+        'name' => 'Area Master',
+        'icon' => 'fa fa-file',
+        'dropdown' => true,
+        'route' => '',
+        'dropdown_items' => [
+            0 => [
+                'name' => 'Add Area',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.area_master.create',
+            ],
+            1 => [
+                'name' => 'Manage Area',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.area_master.index',
+            ],
+        ],
+    ],
+    8 => [
+        'name' => 'Branch Master',
+        'icon' => 'fa fa-file',
+        'dropdown' => true,
+        'route' => '',
+        'dropdown_items' => [
+            0 => [
+                'name' => 'Add Branch',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.branch_master.create',
+            ],
+            1 => [
+                'name' => 'Manage Branch',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.branch_master.index',
+            ],
+        ],
+    ],
 ];
 
 unset($menuItem, $dropdownItem);

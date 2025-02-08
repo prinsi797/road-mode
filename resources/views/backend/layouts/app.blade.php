@@ -24,9 +24,12 @@
         ?>
         @include($theme_name . '.layouts.partial.menu_items')
     @endif
+
+
     {{-- <main class="app-content p-5">
-    @yield('content')
-  </main> --}}
+        @yield('content')
+    </main> --}}
+
     <!-- Essential javascripts for application to work-->
     <script src="{{ asset('backend/assets/plugins/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('backend/assets/plugins/popper.min.js') }}"

@@ -1,9 +1,11 @@
+@extends('frontend.layouts.frontend')
+@section('content')
     <!-- Carousel Start -->
     <div class="container-fluid p-0 mb-5">
         <div id="header-carousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <img class="w-100" src="img/carousel-bg-1.jpg" alt="Image">
+                    <img class="w-100" src="{{ asset('frontend/img/carousel-bg-1.jpg') }}" alt="Image">
                     <div class="carousel-caption d-flex align-items-center">
                         <div class="container">
                             <div class="row align-items-center justify-content-center justify-content-lg-start">
@@ -16,14 +18,14 @@
                                             class="fa fa-arrow-right ms-3"></i></a>
                                 </div>
                                 <div class="col-lg-5 d-none d-lg-flex animated zoomIn">
-                                    <img class="img-fluid" src="img/carousel-1.png" alt="">
+                                    <img class="img-fluid" src="{{ asset('frontend/img/carousel-1.png') }}" alt="">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="carousel-item">
-                    <img class="w-100" src="img/carousel-bg-2.jpg" alt="Image">
+                    <img class="w-100" src="{{ asset('frontend/img/carousel-bg-2.jpg') }}" alt="Image">
                     <div class="carousel-caption d-flex align-items-center">
                         <div class="container">
                             <div class="row align-items-center justify-content-center justify-content-lg-start">
@@ -36,7 +38,7 @@
                                             class="fa fa-arrow-right ms-3"></i></a>
                                 </div>
                                 <div class="col-lg-5 d-none d-lg-flex animated zoomIn">
-                                    <img class="img-fluid" src="img/carousel-2.png" alt="">
+                                    <img class="img-fluid" src="{{ asset('frontend/img/carousel-2.png') }}" alt="">
                                 </div>
                             </div>
                         </div>
@@ -102,7 +104,7 @@
             <div class="row g-5">
                 <div class="col-lg-6 pt-4" style="min-height: 400px;">
                     <div class="position-relative h-100 wow fadeIn" data-wow-delay="0.1s">
-                        <img class="position-absolute img-fluid w-100 h-100" src="img/about.jpg"
+                        <img class="position-absolute img-fluid w-100 h-100" src="{{ asset('frontend/img/about.jpg') }}"
                             style="object-fit: cover;" alt="">
                         <div class="position-absolute top-0 end-0 mt-n4 me-n4 py-4 px-5"
                             style="background: rgba(0, 0, 0, .08);">
@@ -155,7 +157,8 @@
                             </div>
                         </div>
                     </div>
-                    <a href="" class="btn btn-primary py-3 px-5">Read More<i class="fa fa-arrow-right ms-3"></i></a>
+                    <a href="" class="btn btn-primary py-3 px-5">Read More<i
+                            class="fa fa-arrow-right ms-3"></i></a>
                 </div>
             </div>
         </div>
@@ -208,18 +211,18 @@
                             <i class="fa fa-car-side fa-2x me-3"></i>
                             <h4 class="m-0">Diagnostic Test</h4>
                         </button>
-                        <button class="nav-link w-100 d-flex align-items-center text-start p-4 mb-4"
-                            data-bs-toggle="pill" data-bs-target="#tab-pane-2" type="button">
+                        <button class="nav-link w-100 d-flex align-items-center text-start p-4 mb-4" data-bs-toggle="pill"
+                            data-bs-target="#tab-pane-2" type="button">
                             <i class="fa fa-car fa-2x me-3"></i>
                             <h4 class="m-0">Engine Servicing</h4>
                         </button>
-                        <button class="nav-link w-100 d-flex align-items-center text-start p-4 mb-4"
-                            data-bs-toggle="pill" data-bs-target="#tab-pane-3" type="button">
+                        <button class="nav-link w-100 d-flex align-items-center text-start p-4 mb-4" data-bs-toggle="pill"
+                            data-bs-target="#tab-pane-3" type="button">
                             <i class="fa fa-cog fa-2x me-3"></i>
                             <h4 class="m-0">Tires Replacement</h4>
                         </button>
-                        <button class="nav-link w-100 d-flex align-items-center text-start p-4 mb-0"
-                            data-bs-toggle="pill" data-bs-target="#tab-pane-4" type="button">
+                        <button class="nav-link w-100 d-flex align-items-center text-start p-4 mb-0" data-bs-toggle="pill"
+                            data-bs-target="#tab-pane-4" type="button">
                             <i class="fa fa-oil-can fa-2x me-3"></i>
                             <h4 class="m-0">Oil Changing</h4>
                         </button>
@@ -231,8 +234,9 @@
                             <div class="row g-4">
                                 <div class="col-md-6" style="min-height: 350px;">
                                     <div class="position-relative h-100">
-                                        <img class="position-absolute img-fluid w-100 h-100" src="img/service-1.jpg"
-                                            style="object-fit: cover;" alt="">
+                                        <img class="position-absolute img-fluid w-100 h-100"
+                                            src="{{ asset('frontend/img/service-1.jpg') }}" style="object-fit: cover;"
+                                            alt="">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -294,8 +298,9 @@
                             <div class="row g-4">
                                 <div class="col-md-6" style="min-height: 350px;">
                                     <div class="position-relative h-100">
-                                        <img class="position-absolute img-fluid w-100 h-100" src="img/service-4.jpg"
-                                            style="object-fit: cover;" alt="">
+                                        <img class="position-absolute img-fluid w-100 h-100"
+                                            src="{{ asset('frontend/img/service-4.jpg') }}" style="object-fit: cover;"
+                                            alt="">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -388,7 +393,7 @@
                 <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="team-item">
                         <div class="position-relative overflow-hidden">
-                            <img class="img-fluid" src="img/team-1.jpg" alt="">
+                            <img class="img-fluid" src="{{ asset('frontend/img/team-1.jpg') }}" alt="">
                             <div class="team-overlay position-absolute start-0 top-0 w-100 h-100">
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>
@@ -404,7 +409,7 @@
                 <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
                     <div class="team-item">
                         <div class="position-relative overflow-hidden">
-                            <img class="img-fluid" src="img/team-2.jpg" alt="">
+                            <img class="img-fluid" src="{{ asset('frontend/img/team-2.jpg') }}" alt="">
                             <div class="team-overlay position-absolute start-0 top-0 w-100 h-100">
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>
@@ -420,7 +425,7 @@
                 <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
                     <div class="team-item">
                         <div class="position-relative overflow-hidden">
-                            <img class="img-fluid" src="img/team-3.jpg" alt="">
+                            <img class="img-fluid" src="{{ asset('frontend/img/team-3.jpg') }}" alt="">
                             <div class="team-overlay position-absolute start-0 top-0 w-100 h-100">
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>
@@ -436,7 +441,7 @@
                 <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.7s">
                     <div class="team-item">
                         <div class="position-relative overflow-hidden">
-                            <img class="img-fluid" src="img/team-4.jpg" alt="">
+                            <img class="img-fluid" src="{{ asset('frontend/img/team-4.jpg') }}" alt="">
                             <div class="team-overlay position-absolute start-0 top-0 w-100 h-100">
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-facebook-f"></i></a>
                                 <a class="btn btn-square mx-1" href=""><i class="fab fa-twitter"></i></a>
@@ -464,8 +469,8 @@
             </div>
             <div class="owl-carousel testimonial-carousel position-relative">
                 <div class="testimonial-item text-center">
-                    <img class="bg-light rounded-circle p-2 mx-auto mb-3" src="img/testimonial-1.jpg"
-                        style="width: 80px; height: 80px;">
+                    <img class="bg-light rounded-circle p-2 mx-auto mb-3"
+                        src="{{ asset('frontend/img/testimonial-1.jpg') }}" style="width: 80px; height: 80px;">
                     <h5 class="mb-0">Client Name</h5>
                     <p>Profession</p>
                     <div class="testimonial-text bg-light text-center p-4">
@@ -474,8 +479,8 @@
                     </div>
                 </div>
                 <div class="testimonial-item text-center">
-                    <img class="bg-light rounded-circle p-2 mx-auto mb-3" src="img/testimonial-2.jpg"
-                        style="width: 80px; height: 80px;">
+                    <img class="bg-light rounded-circle p-2 mx-auto mb-3"
+                        src="{{ asset('frontend/img/testimonial-2.jpg') }}" style="width: 80px; height: 80px;">
                     <h5 class="mb-0">Client Name</h5>
                     <p>Profession</p>
                     <div class="testimonial-text bg-light text-center p-4">
@@ -484,8 +489,8 @@
                     </div>
                 </div>
                 <div class="testimonial-item text-center">
-                    <img class="bg-light rounded-circle p-2 mx-auto mb-3" src="img/testimonial-3.jpg"
-                        style="width: 80px; height: 80px;">
+                    <img class="bg-light rounded-circle p-2 mx-auto mb-3"
+                        src="{{ asset('frontend/img/testimonial-3.jpg') }}" style="width: 80px; height: 80px;">
                     <h5 class="mb-0">Client Name</h5>
                     <p>Profession</p>
                     <div class="testimonial-text bg-light text-center p-4">
@@ -494,8 +499,8 @@
                     </div>
                 </div>
                 <div class="testimonial-item text-center">
-                    <img class="bg-light rounded-circle p-2 mx-auto mb-3" src="img/testimonial-4.jpg"
-                        style="width: 80px; height: 80px;">
+                    <img class="bg-light rounded-circle p-2 mx-auto mb-3"
+                        src="{{ asset('frontend/img/testimonial-4.jpg') }}" style="width: 80px; height: 80px;">
                     <h5 class="mb-0">Client Name</h5>
                     <p>Profession</p>
                     <div class="testimonial-text bg-light text-center p-4">
@@ -506,17 +511,4 @@
             </div>
         </div>
     </div>
-    <!-- Testimonial End -->
-
-
-
-    <!-- Footer End -->
-
-
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-
-
-    </body>
-
-    </html>
+@endsection

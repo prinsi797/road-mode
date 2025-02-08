@@ -14,6 +14,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+// frontend routes
+
+Route::get('/', 'Frontend\HomeController@index')->name('main');
+Route::get('/about', 'Frontend\HomeController@about')->name('about');
+Route::get('/service', 'Frontend\HomeController@service')->name('service');
+Route::get('/booking', 'Frontend\HomeController@booking')->name('booking');
+Route::get('/contact', 'Frontend\HomeController@contact')->name('contact');
+Route::get('/testimonial', 'Frontend\HomeController@testimonial')->name('testimonial');
+Route::get('/team', 'Frontend\HomeController@team')->name('team');
+
+
+// end
+
+
 Route::get('/admin', 'IndexController@index')->name('home');
 
 Auth::routes([
@@ -71,6 +86,37 @@ Route::middleware(['auth', 'twofactor'])->prefix('admin')->group(function () {
     Route::post('categories/update', 'Admin\ServiceCategoryController@update')->name('admin.service_categories.update');
     Route::get('categories/ajax', 'Admin\ServiceCategoryController@ajax')->name('admin.service_categories.ajax');
     Route::post('categories/delete', 'Admin\ServiceCategoryController@delete')->name('admin.service_categories.delete');
+
+    // city master
+    Route::get('city', 'Admin\CityMasterController@index')->name('admin.city_master.index');
+    Route::get('city/add', 'Admin\CityMasterController@create')->name('admin.city_master.create');
+    Route::get('city/edit/{encrypted_id}', 'Admin\CityMasterController@edit')->name('admin.city_master.edit');
+    Route::get('city/show/{encrypted_id}', 'Admin\CityMasterController@show')->name('admin.city_master.show');
+    Route::post('city/store', 'Admin\CityMasterController@store')->name('admin.city_master.store');
+    Route::post('city/update', 'Admin\CityMasterController@update')->name('admin.city_master.update');
+    Route::get('city/ajax', 'Admin\CityMasterController@ajax')->name('admin.city_master.ajax');
+    Route::post('city/delete', 'Admin\CityMasterController@delete')->name('admin.city_master.delete');
+
+    //area master
+
+    Route::get('area', 'Admin\AreaMasterController@index')->name('admin.area_master.index');
+    Route::get('area/add', 'Admin\AreaMasterController@create')->name('admin.area_master.create');
+    Route::get('area/edit/{encrypted_id}', 'Admin\AreaMasterController@edit')->name('admin.area_master.edit');
+    Route::get('area/show/{encrypted_id}', 'Admin\AreaMasterController@show')->name('admin.area_master.show');
+    Route::post('area/store', 'Admin\AreaMasterController@store')->name('admin.area_master.store');
+    Route::post('area/update', 'Admin\AreaMasterController@update')->name('admin.area_master.update');
+    Route::get('area/ajax', 'Admin\AreaMasterController@ajax')->name('admin.area_master.ajax');
+    Route::post('area/delete', 'Admin\AreaMasterController@delete')->name('admin.area_master.delete');
+
+    // branch master
+    Route::get('branch', 'Admin\BranchMasterController@index')->name('admin.branch_master.index');
+    Route::get('branch/add', 'Admin\BranchMasterController@create')->name('admin.branch_master.create');
+    Route::get('branch/edit/{encrypted_id}', 'Admin\BranchMasterController@edit')->name('admin.branch_master.edit');
+    Route::get('branch/show/{encrypted_id}', 'Admin\BranchMasterController@show')->name('admin.branch_master.show');
+    Route::post('branch/store', 'Admin\BranchMasterController@store')->name('admin.branch_master.store');
+    Route::post('branch/update', 'Admin\BranchMasterController@update')->name('admin.branch_master.update');
+    Route::get('branch/ajax', 'Admin\BranchMasterController@ajax')->name('admin.branch_master.ajax');
+    Route::post('branch/delete', 'Admin\BranchMasterController@delete')->name('admin.branch_master.delete');
 
     // For Roles
     Route::get('roles', 'Admin\RoleController@index')->name('admin.roles.index');

@@ -103,12 +103,10 @@
 </div> --}}
 
 <div class="d-flex">
-    <!-- Sidebar -->
     <div class="bg-dark text-white vh-100" style="width: 250px;">
         <div class="py-4 px-3 text-center">
             <a class="navbar-brand text-white" href="{{ route('admin.dashboard') }}">
                 <img class="img-fluid logo-img mb-3 bg-white" src="{{ asset('backend/assets/images/Logo.png') }}" />
-                {{-- <h5>Road Mode</h5> --}}
             </a>
         </div>
         <ul class="nav flex-column">

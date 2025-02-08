@@ -3,20 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ServiceCategory;
-use Exception;
+use App\Models\AreaMaster as Table;
+use App\Models\CityMaster;
 use Illuminate\Support\Facades\Crypt;
-use App\Http\Requests\ServiceRequests\UpdateService as UpdateRequest;
-use App\Http\Requests\ServiceRequests\AddService as AddRequest;
 use Illuminate\Http\Request;
+use Exception;
 
-class ServiceCategoryController extends Controller {
-    protected $handle_name = 'Service Categories';
-    protected $handle_name_plural = 'service_categories';
+class AreaMasterController extends Controller {
+    protected $handle_name = 'area_master';
+    protected $handle_name_plural = 'area_master';
 
     public function index() {
-        $all_count = ServiceCategory::count();
-        $trashed_count = ServiceCategory::onlyTrashed()->count();
+        $all_count = Table::count();
+        $trashed_count = Table::onlyTrashed()->count();
 
         return kview($this->handle_name_plural . '.index', [
             'ajax_route' => route('admin.' . $this->handle_name_plural . '.ajax'),
@@ -32,10 +31,13 @@ class ServiceCategoryController extends Controller {
         ]);
     }
     public function create() {
+        $citys = CityMaster::all();
+
         return kview($this->handle_name_plural . '.manage', [
             'index_route' => route('admin.' . $this->handle_name_plural . '.index'),
             'form_action' => route('admin.' . $this->handle_name_plural . '.store'),
             'edit' => 0,
+            'citys' => $citys,
             'module_names' => [
                 'singular' => $this->handle_name,
                 'plural' => $this->handle_name_plural,
@@ -45,14 +47,15 @@ class ServiceCategoryController extends Controller {
     public function edit(Request $request) {
         $ecrypted_id = $request->encrypted_id;
         $id = Crypt::decryptString($ecrypted_id);
-        $data = ServiceCategory::where('id', '=', $id)->first();
+        $data = Table::where('id', '=', $id)->first();
+        $citys = CityMaster::all();
 
         return kview($this->handle_name_plural . '.manage', [
             'index_route' => route('admin.' . $this->handle_name_plural . '.index'),
             'form_action' => route('admin.' . $this->handle_name_plural . '.update'),
             'edit' => 1,
             'data' => $data,
-
+            'citys' => $citys,
             'module_names' => [
                 'singular' => $this->handle_name,
                 'plural' => $this->handle_name_plural,
@@ -61,7 +64,7 @@ class ServiceCategoryController extends Controller {
     }
     public function show(Request $request) {
         $id = Crypt::decryptString($request->encrypted_id);
-        $data = ServiceCategory::findOrFail($id);
+        $data = Table::findOrFail($id);
 
         return kview($this->handle_name_plural . '.show', [
             'data' => $data,
@@ -74,30 +77,11 @@ class ServiceCategoryController extends Controller {
 
     public function store(Request $request) {
         try {
-            $request->validate([
-                'sc_name' => 'required',
-                'sc_bike_car' => 'required|string|max:255',
-                'sc_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image
-                'sc_description' => 'nullable',
-                'is_status' => 'nullable',
-                'created_by' => 'nullable',
-                'modified_by' => 'nullable',
-            ]);
-
-            $photoPath = null;
-            if ($request->hasFile('sc_photo')) {
-                $photoPath = $request->file('sc_photo')->store('services', 'public'); // Store in 'products' folder in 'storage/app/public'
-            }
-
-            $categoryProduct = ServiceCategory::create([
-                'sc_name' => $request->sc_name,
-                'sc_bike_car' => $request->sc_bike_car,
-                'sc_photo' => $photoPath,
-                'sc_description' => $request->sc_description,
-                'is_status' => $request->is_status,
-                'created_by' => $request->created_by,
-                'modified_by' => $request->modified_by,
-            ]);
+            $categoryProduct = Table::create($request->only([
+                'area_name',
+                'distance_from_branch',
+                'city_id'
+            ]));
 
             return redirect()
                 ->route('admin.' . $this->handle_name_plural . '.index')
@@ -108,36 +92,13 @@ class ServiceCategoryController extends Controller {
     }
     public function update(Request $request) {
         try {
-            $request->validate([
-                'sc_name' => 'required',
-                'sc_bike_car' => 'required|string|max:255',
-                'sc_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image
-                'sc_description' => 'required',
-                'is_status' => 'nullable',
-                'created_by' => 'nullable',
-                'modified_by' => 'nullable',
-            ]);
-
             $id = $request->id;
-            $categoryProduct = ServiceCategory::findOrFail($id);
-
-            $photoPath = $categoryProduct->sc_photo;
-            if ($request->hasFile('sc_photo')) {
-                if ($photoPath) {
-                    \Storage::disk('public')->delete($photoPath);
-                }
-
-                $photoPath = $request->file('sc_photo')->store('services', 'public');
-            }
-            $categoryProduct->update([
-                'sc_name' => $request->sc_name,
-                'sc_bike_car' => $request->sc_bike_car,
-                'sc_photo' => $photoPath,
-                'sc_description' => $request->sc_description,
-                'is_status' => $request->is_status,
-                'created_by' => $request->created_by,
-                'modified_by' => $request->modified_by,
-            ]);
+            $categoryProduct = Table::findOrFail($id);
+            $categoryProduct->update($request->only([
+                'area_name',
+                'distance_from_branch',
+                'city_id'
+            ]));
 
             return redirect()
                 ->route('admin.' . $this->handle_name_plural . '.index')
@@ -155,25 +116,25 @@ class ServiceCategoryController extends Controller {
             switch ($action) {
                 case 'restore':
                     if ($is_bulk) {
-                        ServiceCategory::onlyTrashed()->whereIn('id', explode(",", $data_id))->restore();
+                        Table::onlyTrashed()->whereIn('id', explode(",", $data_id))->restore();
                     } else {
-                        ServiceCategory::onlyTrashed()->findOrFail($data_id)->restore();
+                        Table::onlyTrashed()->findOrFail($data_id)->restore();
                     }
                     break;
 
                 case 'trash':
                     if ($is_bulk) {
-                        ServiceCategory::whereIn('id', explode(",", $data_id))->delete();
+                        Table::whereIn('id', explode(",", $data_id))->delete();
                     } else {
-                        ServiceCategory::findOrFail($data_id)->delete();
+                        Table::findOrFail($data_id)->delete();
                     }
                     break;
 
                 case 'delete':
                     if ($is_bulk) {
-                        ServiceCategory::withTrashed()->whereIn('id', explode(",", $data_id))->forceDelete();
+                        Table::withTrashed()->whereIn('id', explode(",", $data_id))->forceDelete();
                     } else {
-                        ServiceCategory::withTrashed()->findOrFail($data_id)->forceDelete();
+                        Table::withTrashed()->findOrFail($data_id)->forceDelete();
                     }
                     break;
             }
@@ -191,7 +152,7 @@ class ServiceCategoryController extends Controller {
             $limit = 10;
         }
         $offset = (($current_page - 1) * $limit);
-        $modalObject = new ServiceCategory();
+        $modalObject = new Table();
         if (isset($request->string)) {
             $string = $request->string;
             $modalObject = $modalObject->where('name', 'like', "%" . $request->string . "%");

@@ -4,17 +4,18 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCompaniesTable extends Migration {
+class CreateAreaMasterTable extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
     public function up() {
-        Schema::create('companies', function (Blueprint $table) {
+        Schema::create('area_master', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('image')->nullable();
+            $table->foreignId('city_id')->constrained('city_master')->onDelete('cascade');
+            $table->string('area_name')->nullable();
+            $table->string('distance_from_branch')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -26,6 +27,6 @@ class CreateCompaniesTable extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists('companies');
+        Schema::dropIfExists('area_master');
     }
 }
