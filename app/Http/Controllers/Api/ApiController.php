@@ -153,7 +153,7 @@ class ApiController extends Controller {
             $services = ServiceCategory::all();
 
             $services = $services->map(function ($service) {
-                $service->sc_photo = $service->sc_photo ? asset('storage/' . $service->sc_photo) : null;
+                $service->sc_photo = $service->sc_photo ? asset($service->sc_photo) : null;
                 $service->is_status = $service->is_status == "1" ? "Active" : "InActive";
                 return $service;
             });
