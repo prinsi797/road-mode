@@ -111,8 +111,36 @@ class BranchMasterController extends Controller {
 
         $branch_code = $this->generateBranchCode();
 
-        $photoPath = $request->hasFile('br_photo') ? $request->file('br_photo')->store('branches', 'public') : null;
-        $signPath = $request->hasFile('br_sign') ? $request->file('br_sign')->store('signatures', 'public') : null;
+        // $photoPath = $request->hasFile('br_photo') ? $request->file('br_photo')->store('branches', 'public') : null;
+        // $signPath = $request->hasFile('br_sign') ? $request->file('br_sign')->store('signatures', 'public') : null;
+        $photoPath = null;
+        if ($request->hasFile('br_photo')) {
+            $photoFile = $request->file('br_photo');
+            $photoDirectory = public_path('branches');
+
+            if (!file_exists($photoDirectory)) {
+                mkdir($photoDirectory, 0777, true);
+            }
+
+            $photoName = uniqid() . '_' . time() . '.' . $photoFile->getClientOriginalExtension();
+            $photoFile->move($photoDirectory, $photoName);
+            $photoPath = 'branches/' . $photoName;
+        }
+
+        // Handle br_sign
+        $signPath = null;
+        if ($request->hasFile('br_sign')) {
+            $signFile = $request->file('br_sign');
+            $signDirectory = public_path('signatures');
+
+            if (!file_exists($signDirectory)) {
+                mkdir($signDirectory, 0777, true);
+            }
+
+            $signName = uniqid() . '_' . time() . '.' . $signFile->getClientOriginalExtension();
+            $signFile->move($signDirectory, $signName);
+            $signPath = 'signatures/' . $signName;
+        }
 
         $branch = Table::create([
             'br_code' => $branch_code,
@@ -176,24 +204,54 @@ class BranchMasterController extends Controller {
                 'created_by' => 'required',
                 'modified_by' => 'nullable',
             ]);
+            // if ($request->hasFile('br_photo')) {
+            //     if ($branch->br_photo) {
+            //         Storage::disk('public')->delete($branch->br_photo); // Purani photo delete karna
+            //     }
+            //     $photoPath = $request->file('br_photo')->store('branches', 'public');
+            // } else {
+            //     $photoPath = $branch->br_photo;
+            // }
+
+            // if ($request->hasFile('br_sign')) {
+            //     if ($branch->br_sign) {
+            //         Storage::disk('public')->delete($branch->br_sign);
+            //     }
+            //     $signPath = $request->file('br_sign')->store('signatures', 'public');
+            // } else {
+            //     $signPath = $branch->br_sign;
+            // }
             if ($request->hasFile('br_photo')) {
                 if ($branch->br_photo) {
-                    Storage::disk('public')->delete($branch->br_photo); // Purani photo delete karna
+                    $oldPhotoPath = public_path($branch->br_photo);
+                    if (file_exists($oldPhotoPath)) {
+                        unlink($oldPhotoPath);
+                    }
                 }
-                $photoPath = $request->file('br_photo')->store('branches', 'public');
+
+                $photoFile = $request->file('br_photo');
+                $photoName = time() . '_photo.' . $photoFile->getClientOriginalExtension();
+                $photoPath = 'branches/' . $photoName;
+                $photoFile->move(public_path('branches'), $photoName);
             } else {
                 $photoPath = $branch->br_photo;
             }
 
+            // Handling br_sign
             if ($request->hasFile('br_sign')) {
                 if ($branch->br_sign) {
-                    Storage::disk('public')->delete($branch->br_sign);
+                    $oldSignPath = public_path($branch->br_sign);
+                    if (file_exists($oldSignPath)) {
+                        unlink($oldSignPath);
+                    }
                 }
-                $signPath = $request->file('br_sign')->store('signatures', 'public');
+                $signFile = $request->file('br_sign');
+                $signName = time() . '_sign.' . $signFile->getClientOriginalExtension();
+                $signPath = 'signatures/' . $signName;
+                $signFile->move(public_path('signatures'), $signName);
             } else {
                 $signPath = $branch->br_sign;
             }
-
             $branch->update([
                 'br_address' => $request->br_address,
                 'br_owner_name' => $request->br_owner_name,

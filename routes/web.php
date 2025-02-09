@@ -117,6 +117,27 @@ Route::middleware(['auth', 'twofactor'])->prefix('admin')->group(function () {
     Route::post('branch/update', 'Admin\BranchMasterController@update')->name('admin.branch_master.update');
     Route::get('branch/ajax', 'Admin\BranchMasterController@ajax')->name('admin.branch_master.ajax');
     Route::post('branch/delete', 'Admin\BranchMasterController@delete')->name('admin.branch_master.delete');
+    // Company Master
+    Route::get('company', 'Admin\CompanyMasterController@index')->name('admin.company_master.index');
+    Route::get('company/add', 'Admin\CompanyMasterController@create')->name('admin.company_master.create');
+    Route::get('company/edit/{encrypted_id}', 'Admin\CompanyMasterController@edit')->name('admin.company_master.edit');
+    Route::get('company/show/{encrypted_id}', 'Admin\CompanyMasterController@show')->name('admin.company_master.show');
+    Route::post('company/store', 'Admin\CompanyMasterController@store')->name('admin.company_master.store');
+    Route::post('company/update', 'Admin\CompanyMasterController@update')->name('admin.company_master.update');
+    Route::get('company/ajax', 'Admin\CompanyMasterController@ajax')->name('admin.company_master.ajax');
+    Route::post('company/delete', 'Admin\CompanyMasterController@delete')->name('admin.company_master.delete');
+
+    //Model Master
+
+    Route::get('model', 'Admin\ModelMasterController@index')->name('admin.model_master.index');
+    Route::get('model/add', 'Admin\ModelMasterController@create')->name('admin.model_master.create');
+    Route::get('model/edit/{encrypted_id}', 'Admin\ModelMasterController@edit')->name('admin.model_master.edit');
+    Route::get('model/show/{encrypted_id}', 'Admin\ModelMasterController@show')->name('admin.model_master.show');
+    Route::post('model/store', 'Admin\ModelMasterController@store')->name('admin.model_master.store');
+    Route::post('model/update', 'Admin\ModelMasterController@update')->name('admin.model_master.update');
+    Route::get('model/ajax', 'Admin\ModelMasterController@ajax')->name('admin.model_master.ajax');
+    Route::post('model/delete', 'Admin\ModelMasterController@delete')->name('admin.model_master.delete');
+
 
     // For Roles
     Route::get('roles', 'Admin\RoleController@index')->name('admin.roles.index');

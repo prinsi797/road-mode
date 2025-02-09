@@ -157,6 +157,42 @@ $menu = [
             ],
         ],
     ],
+    9 => [
+        'name' => 'Company Master',
+        'icon' => 'fa fa-file',
+        'dropdown' => true,
+        'route' => '',
+        'dropdown_items' => [
+            0 => [
+                'name' => 'Add Company',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.company_master.create',
+            ],
+            1 => [
+                'name' => 'Manage Compnay',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.company_master.index',
+            ],
+        ],
+    ],
+    10 => [
+        'name' => 'Model Master',
+        'icon' => 'fa fa-file',
+        'dropdown' => true,
+        'route' => '',
+        'dropdown_items' => [
+            0 => [
+                'name' => 'Add Model',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.model_master.create',
+            ],
+            1 => [
+                'name' => 'Manage Model',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.model_master.index',
+            ],
+        ],
+    ],
 ];
 
 unset($menuItem, $dropdownItem);

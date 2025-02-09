@@ -36,44 +36,37 @@
                         <div class="card-body">
                             <div class="row form_sec">
                                 <div class="col-12">
-                                    <h5>Basic Details</h5>
+                                    <h5>Branch Details</h5>
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="bike_car">Bike Car</label>
+                                        <input type="text" name="bike_car" class="form-control k-input" id="bike_car"
+                                            @if ($edit) value="{{ $data->bike_car }}" @else value="{{ old('bike_car') }}" @endif>
+                                    </div>
+                                </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="sc_name">Name</label>
-                                        <input type="text" name="sc_name" class="form-control k-input" id="sc_name"
-                                            @if ($edit) value="{{ $data->sc_name }}" @else value="{{ old('sc_name') }}" @endif>
+                                        <label for="com_name">Com Name</label>
+                                        <input type="text" name="com_name" class="form-control k-input" id="com_name"
+                                            @if ($edit) value="{{ $data->com_name }}" @else value="{{ old('com_name') }}" @endif>
                                     </div>
                                 </div>
+
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="sc_bike_car">Bike Car</label>
-                                        <input type="text" name="sc_bike_car" class="form-control k-input"
-                                            id="sc_bike_car"
-                                            @if ($edit) value="{{ $data->sc_bike_car }}" @else value="{{ old('sc_bike_car') }}" @endif>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="sc_photo">Photo</label>
-                                        <input type="file" name="sc_photo" class="form-control k-input" id="sc_photo">
-                                        @if ($edit && $data->sc_photo)
-                                            <small>Current Photo: <a href="{{ asset($data->sc_photo) }}"
+                                        <label for="com_logo">Logo</label>
+                                        <input type="file" name="com_logo" class="form-control k-input" id="com_logo">
+                                        @if ($edit && $data->com_logo)
+                                            <small>Current logo: <a href="{{ asset($data->com_logo) }}"
                                                     target="_blank">View</a></small>
                                         @endif
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="sc_description">Description</label>
-                                        <input type="text" name="sc_description" class="form-control k-input"
-                                            id="sc_description"
-                                            @if ($edit) value="{{ $data->sc_description }}" @else value="{{ old('sc_description') }}" @endif>
-                                    </div>
-                                </div>
+
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="is_status">Status</label>
@@ -107,14 +100,15 @@
                             </div>
                         </div>
                     </div>
+
                     <br />
                     <div class="row">
                         <div class="col-md-12">
                             <button type="submit" class="btn k-btn k-btn-primary add_site">
                                 @if ($edit)
-                                    Update Changes
+                                    Update Company
                                 @else
-                                    Add Service
+                                    Add Company
                                 @endif
                             </button>
                         </div>

@@ -84,11 +84,21 @@ class ServiceCategoryController extends Controller {
                 'modified_by' => 'nullable',
             ]);
 
+            // $photoPath = null;
+            // if ($request->hasFile('sc_photo')) {
+            //     $photoPath = $request->file('sc_photo')->store('services', 'public'); // Store in 'products' folder in 'storage/app/public'
+            // }
             $photoPath = null;
             if ($request->hasFile('sc_photo')) {
-                $photoPath = $request->file('sc_photo')->store('services', 'public'); // Store in 'products' folder in 'storage/app/public'
+                $targetDirectory = public_path('services');
+                if (!file_exists($targetDirectory)) {
+                    mkdir($targetDirectory, 0777, true);
+                }
+                $file = $request->file('sc_photo');
+                $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move($targetDirectory, $fileName);
+                $photoPath = 'services/' . $fileName;
             }
-
             $categoryProduct = ServiceCategory::create([
                 'sc_name' => $request->sc_name,
                 'sc_bike_car' => $request->sc_bike_car,
@@ -121,14 +131,30 @@ class ServiceCategoryController extends Controller {
             $id = $request->id;
             $categoryProduct = ServiceCategory::findOrFail($id);
 
-            $photoPath = $categoryProduct->sc_photo;
-            if ($request->hasFile('sc_photo')) {
-                if ($photoPath) {
-                    \Storage::disk('public')->delete($photoPath);
-                }
+            // $photoPath = $categoryProduct->sc_photo;
+            // if ($request->hasFile('sc_photo')) {
+            //     if ($photoPath) {
+            //         \Storage::disk('public')->delete($photoPath);
+            //     }
 
-                $photoPath = $request->file('sc_photo')->store('services', 'public');
+            //     $photoPath = $request->file('sc_photo')->store('services', 'public');
+            // }
+            $photoPath = $categoryProduct->sc_photo;
+
+            if ($request->hasFile('sc_photo')) {
+                if ($photoPath && file_exists(public_path($photoPath))) {
+                    unlink(public_path($photoPath));
+                }
+                $targetDirectory = public_path('services');
+                if (!file_exists($targetDirectory)) {
+                    mkdir($targetDirectory, 0777, true);
+                }
+                $file = $request->file('sc_photo');
+                $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move($targetDirectory, $fileName);
+                $photoPath = 'services/' . $fileName;
             }
+
             $categoryProduct->update([
                 'sc_name' => $request->sc_name,
                 'sc_bike_car' => $request->sc_bike_car,

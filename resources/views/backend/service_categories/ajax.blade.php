@@ -27,7 +27,8 @@
                     <td>{{ ++$record_id }}</td>
                     <td><a href="{{ $v->show_route }}">{{ $v->sc_name }}</a></td>
                     <td>{{ $v->sc_description }}</td>
-                    <td><img src="{{ asset('storage/' . $v->sc_photo) }}" width="30" height="30" /></td>
+                    <td><img src="{{ asset($v->sc_photo) }}" width="30" height="30" /></td>
+
                     <td><span class="badge bg-danger">{{ getStatusText($v->is_status) }}</span></td>
                     <td>{{ Date('d M, Y', strtotime($v->created_at)) }}</td>
                     <td>

@@ -9,14 +9,11 @@
                     <input type="checkbox" name="row_check_all" class="row_check_all k-input">
                 </th>
                 <th>#</th>
-                <th>Branch Code</th>
-                <th>Branch Address</th>
-                <th>Owner Name</th>
-                <th>Sign</th>
-                <th>Photo</th>
+                <th>company code</th>
+                <th>Bike car</th>
+                <th>company name</th>
+                <th>company logo</th>
                 <th>Status</th>
-                <th>Created By</th>
-                <th>Modified By</th>
                 <th>Created At</th>
                 <th></th>
             </tr>
@@ -29,18 +26,15 @@
                             value="{{ $v->id }}" data-id="{{ $v->id }}">
                     </td>
                     <td>{{ ++$record_id }}</td>
-                    <td><a href="{{ $v->show_route }}">{{ $v->br_code }}</a></td>
-                    <td>{{ $v->br_address }}</td>
-                    <td>{{ $v->br_owner_name }}</td>
-                    <td><img src="{{ asset($v->br_sign) }}" width="30" height="30" /></td>
-                    <td><img src="{{ asset($v->br_photo) }}" width="30" height="30" /></td>
+                    <td>{{ $v->com_code }}</td>
+                    <td>{{ $v->bike_car }}</td>
+                    <td><a href="{{ $v->show_route }}">{{ $v->com_name }}</a></td>
+                    <td><img src="{{ asset($v->com_logo) }}" width="30" height="30" /></td>
                     <td><span class="badge bg-danger">{{ getStatusText($v->is_status) }}</span></td>
-                    <td>{{ $v->created_by }}</td>
-                    <td>{{ $v->modified_by }}</td>
                     <td>{{ Date('d M, Y', strtotime($v->created_at)) }}</td>
                     <td>
                         @if ($v->deleted_at == null)
-                            <a href="{{ route('admin.branch_master.edit', ['encrypted_id' => Crypt::encryptString($v->id)]) }}"
+                            <a href="{{ route('admin.company_master.edit', ['encrypted_id' => Crypt::encryptString($v->id)]) }}"
                                 class="btn k-btn-sm k-btn-primary btn-sm">Edit</a>
                             <a href="#" data-id="{{ $v->id }}"
                                 class="btn k-btn-sm k-btn-danger btn-sm trash_btn delete{{ $v->id }}">Trash</a>
@@ -54,7 +48,7 @@
                 </tr>
                 <?php $page_number++; ?>
             @endforeach
-        </tbody>
+        <tbody>
     </table>
     <div class="text-muted p-2"></div>
 @else

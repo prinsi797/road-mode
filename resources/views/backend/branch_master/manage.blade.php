@@ -62,7 +62,17 @@
                                         <label for="br_photo">Photo</label>
                                         <input type="file" name="br_photo" class="form-control k-input" id="br_photo">
                                         @if ($edit && $data->br_photo)
-                                            <small>Current Photo: <a href="{{ asset('storage/' . $data->br_photo) }}"
+                                            <small>Current Photo: <a href="{{ asset($data->br_photo) }}"
+                                                    target="_blank">View</a></small>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="br_sign">Sign</label>
+                                        <input type="file" name="br_sign" class="form-control k-input" id="br_sign">
+                                        @if ($edit && $data->br_sign)
+                                            <small>Current Photo: <a href="{{ asset($data->br_sign) }}"
                                                     target="_blank">View</a></small>
                                         @endif
                                     </div>
