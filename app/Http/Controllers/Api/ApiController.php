@@ -90,19 +90,18 @@ class ApiController extends Controller {
     public function login(Request $request) {
         $credentials = $request->only('email', 'password');
 
-        //valid credential
+        // Validate credentials
         $validator = Validator::make($credentials, [
             'email' => 'required|email',
             'password' => 'required|string|min:6|max:50'
         ]);
 
-        //Send failed response if request is not valid
+        // Send failed response if validation fails
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()], 200);
         }
 
-        //Request is validated
-        //Crean token
+        // Attempt login and create token
         try {
             if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json([
@@ -111,20 +110,30 @@ class ApiController extends Controller {
                 ], 400);
             }
         } catch (JWTException $e) {
-            return $credentials;
             return response()->json([
                 'status' => false,
                 'message' => 'Could not create token.',
             ], 500);
         }
 
-        //Token created, return with success response and jwt token
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Return response with user details and token
         return response()->json([
             'success' => true,
-            'message' => 'user login successfully',
+            'message' => 'User login successful',
             'token' => $token,
-        ]);
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+                'role' => $user->roles->pluck('name')->first() // Assuming the user has one role
+            ]
+        ], 200);
     }
+
 
     public function logout(Request $request) {
         try {
