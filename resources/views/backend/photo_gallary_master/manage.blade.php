@@ -42,19 +42,27 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="model_name">Model Name</label>
-                                        <input type="text" name="model_name" class="form-control k-input" id="model_name"
-                                            @if ($edit) value="{{ $data->model_name }}" @else value="{{ old('model_name') }}" @endif>
+                                        <label for="photo_name">Photo Name</label>
+                                        <input type="text" name="photo_name" class="form-control k-input" id="photo_name"
+                                            @if ($edit) value="{{ $data->photo_name }}" @else value="{{ old('photo_name') }}" @endif>
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="model_photo">Photo</label>
-                                        <input type="file" name="model_photo" class="form-control k-input"
-                                            id="model_photo">
-                                        @if ($edit && $data->model_photo)
-                                            <small>Current Photo: <a href="{{ asset($data->model_photo) }}"
+                                        <label for="photo_description">Photo Description</label>
+                                        <input type="text" name="photo_description" class="form-control k-input"
+                                            id="photo_description"
+                                            @if ($edit) value="{{ $data->photo_description }}" @else value="{{ old('photo_description') }}" @endif>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="photo">Photo</label>
+                                        <input type="file" name="photo" class="form-control k-input" id="photo">
+                                        @if ($edit && $data->photo)
+                                            <small>Current photo: <a href="{{ asset($data->photo) }}"
                                                     target="_blank">View</a></small>
                                         @endif
                                     </div>
@@ -62,23 +70,12 @@
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="model_description">Model Description</label>
-                                        <input type="text" name="model_description" class="form-control k-input"
-                                            id="model_description"
-                                            @if ($edit) value="{{ $data->model_description }}" @else value="{{ old('model_description') }}" @endif>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <div class="mb-3">
-                                        <label for="com_id">Company</label>
-                                        <select name="com_id" class="form-control k-input" id="com_id">
-                                            <option value="">Select Company</option>
-                                            @foreach ($company as $companies)
-                                                <option value="{{ $companies->id }}"
-                                                    {{ $edit && $data->com_id == $companies->id ? 'selected' : '' }}>
-                                                    {{ $companies->com_name }}
+                                        <label for="photo_for">photo_for</label>
+                                        <select name="photo_for" class="form-control k-input" id="photo_for">
+                                            @foreach (photoFor() as $key => $value)
+                                                <option value="{{ $key }}"
+                                                    @if (isset($data) && $data->photo_for == $key) selected @endif>
+                                                    {{ $value }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -93,9 +90,9 @@
                         <div class="col-md-12">
                             <button type="submit" class="btn k-btn k-btn-primary add_site">
                                 @if ($edit)
-                                    Update Model
+                                    Update Gallery
                                 @else
-                                    Add Model
+                                    Add Gallery
                                 @endif
                             </button>
                         </div>

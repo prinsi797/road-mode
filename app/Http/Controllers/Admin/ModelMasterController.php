@@ -84,9 +84,6 @@ class ModelMasterController extends Controller {
             'model_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'com_id' => 'required|exists:company_master,id',
             'model_description' => 'required',
-            'is_status' => 'required|boolean',
-            'created_by' => 'required',
-            'modified_by' => 'nullable',
         ]);
 
         $model_code = $this->generateModelCode();
@@ -111,9 +108,8 @@ class ModelMasterController extends Controller {
             'model_photo' => $photoPath,
             'com_id' => $request->com_id,
             'model_description' => $request->model_description,
-            'is_status' => $request->is_status,
-            'created_by' => $request->created_by,
-            'modified_by' => $request->modified_by,
+            'is_status' => 1,
+            'created_by' => auth()->user()->name,
         ]);
 
         return redirect()
@@ -135,9 +131,6 @@ class ModelMasterController extends Controller {
                 'model_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'com_id' => 'required|exists:company_master,id',
                 'model_description' => 'required',
-                'is_status' => 'required|boolean',
-                'created_by' => 'required',
-                'modified_by' => 'nullable',
             ]);
 
             if ($request->hasFile('model_photo')) {
@@ -161,9 +154,8 @@ class ModelMasterController extends Controller {
                 'model_photo' => $photoPath,
                 'com_id' => $request->com_id,
                 'model_description' => $request->model_description,
-                'is_status' => $request->is_status,
-                'created_by' => $request->created_by,
-                'modified_by' => $request->modified_by,
+                'is_status' => 1,
+                'modified_by' => auth()->user()->name,
             ]);
 
             return redirect()

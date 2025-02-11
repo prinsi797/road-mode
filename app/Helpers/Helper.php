@@ -186,3 +186,20 @@ if (!function_exists('getStatusText')) {
         return $status == 1 ? 'Active' : 'Inactive';
     }
 }
+
+function photoFor() {
+    return [
+        'certificate' => 'certificate',
+        'customer delivery' => 'customer delivery',
+        'other' => 'other',
+    ];
+}
+
+if (!function_exists('getVehicleOptions')) {
+    function getVehicleOptions() {
+        return [
+            'bike' => 'Bike',
+            'car' => 'Car',
+        ];
+    }
+}

@@ -139,6 +139,18 @@ Route::middleware(['auth', 'twofactor'])->prefix('admin')->group(function () {
     Route::post('model/delete', 'Admin\ModelMasterController@delete')->name('admin.model_master.delete');
 
 
+    //Photo Gallery Master
+
+    Route::get('gallery', 'Admin\PhotoGalleryController@index')->name('admin.photo_gallary_master.index');
+    Route::get('gallery/add', 'Admin\PhotoGalleryController@create')->name('admin.photo_gallary_master.create');
+    Route::get('gallery/edit/{encrypted_id}', 'Admin\PhotoGalleryController@edit')->name('admin.photo_gallary_master.edit');
+    Route::get('gallery/show/{encrypted_id}', 'Admin\PhotoGalleryController@show')->name('admin.photo_gallary_master.show');
+    Route::post('gallery/store', 'Admin\PhotoGalleryController@store')->name('admin.photo_gallary_master.store');
+    Route::post('gallery/update', 'Admin\PhotoGalleryController@update')->name('admin.photo_gallary_master.update');
+    Route::get('gallery/ajax', 'Admin\PhotoGalleryController@ajax')->name('admin.photo_gallary_master.ajax');
+    Route::post('gallery/delete', 'Admin\PhotoGalleryController@delete')->name('admin.photo_gallary_master.delete');
+
+
     // For Roles
     Route::get('roles', 'Admin\RoleController@index')->name('admin.roles.index');
     Route::get('roles/add', 'Admin\RoleController@create')->name('admin.roles.create');

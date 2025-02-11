@@ -9,10 +9,8 @@
                     <input type="checkbox" name="row_check_all" class="row_check_all k-input">
                 </th>
                 <th>#</th>
-                <th>company code</th>
-                <th>Bike car</th>
-                <th>company name</th>
-                <th>company logo</th>
+                <th>Photo For</th>
+                <th>Photo Name</th>
                 <th>Status</th>
                 <th>Created At</th>
                 <th></th>
@@ -26,15 +24,13 @@
                             value="{{ $v->id }}" data-id="{{ $v->id }}">
                     </td>
                     <td>{{ ++$record_id }}</td>
-                    <td>{{ $v->com_code }}</td>
-                    <td>{{ $v->vehicle->name ?? 'N/A' }}</td>
-                    <td><a href="{{ $v->show_route }}">{{ $v->com_name }}</a></td>
-                    <td><img src="{{ asset($v->com_logo) }}" width="30" height="30" /></td>
+                    <td>{{ $v->photo_for }}</td>
+                    <td>{{ $v->photo_name }}</td>
                     <td><span class="badge bg-danger">{{ getStatusText($v->is_status) }}</span></td>
                     <td>{{ Date('d M, Y', strtotime($v->created_at)) }}</td>
                     <td>
                         @if ($v->deleted_at == null)
-                            <a href="{{ route('admin.company_master.edit', ['encrypted_id' => Crypt::encryptString($v->id)]) }}"
+                            <a href="{{ route('admin.photo_gallary_master.edit', ['encrypted_id' => Crypt::encryptString($v->id)]) }}"
                                 class="btn k-btn-sm k-btn-primary btn-sm">Edit</a>
                             <a href="#" data-id="{{ $v->id }}"
                                 class="btn k-btn-sm k-btn-danger btn-sm trash_btn delete{{ $v->id }}">Trash</a>

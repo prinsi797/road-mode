@@ -21,4 +21,6 @@ Route::post('register', [ApiController::class, 'register']);
 Route::group(['middleware' => ['jwt.verify']], function () {
     Route::get('logout', [ApiController::class, 'logout']);
     Route::get('get-service', [ApiController::class, 'getService']);
+    Route::get('/get-companies-for-vehicle', [ApiController::class, 'getCompaniesForVehicle']);
+    Route::get('/get-vehicle-models', [ApiController::class, 'getVehicleModels']);
 });

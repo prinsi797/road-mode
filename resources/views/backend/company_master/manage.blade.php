@@ -42,12 +42,17 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="bike_car">Bike Car</label>
-                                        <input type="text" name="bike_car" class="form-control k-input" id="bike_car"
-                                            @if ($edit) value="{{ $data->bike_car }}" @else value="{{ old('bike_car') }}" @endif>
+                                        <label for="vehical_id">Vehicle</label>
+                                        <select name="vehical_id" class="form-control k-input" id="vehical_id">
+                                            @foreach ($vehicles as $vehicle)
+                                                <option value="{{ $vehicle->id }}"
+                                                    @if (isset($data) && $data->vehical_id == $vehicle->id) selected @endif>
+                                                    {{ $vehicle->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
-
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="com_name">Com Name</label>
@@ -64,37 +69,6 @@
                                             <small>Current logo: <a href="{{ asset($data->com_logo) }}"
                                                     target="_blank">View</a></small>
                                         @endif
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="is_status">Status</label>
-                                        <select name="is_status" class="form-control k-input" id="is_status">
-                                            @foreach (getStatusOptions() as $key => $value)
-                                                <option value="{{ $key }}"
-                                                    @if (isset($data) && $data->is_status == $key) selected @endif>
-                                                    {{ $value }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="created_by">Created By</label>
-                                        <input type="text" name="created_by" class="form-control k-input" id="created_by"
-                                            @if ($edit) value="{{ $data->created_by }}" @else value="{{ old('created_by') }}" @endif>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="modified_by">Modified By</label>
-                                        <input type="text" name="modified_by" class="form-control k-input"
-                                            id="modified_by"
-                                            @if ($edit) value="{{ $data->modified_by }}" @else value="{{ old('modified_by') }}" @endif>
                                     </div>
                                 </div>
                             </div>

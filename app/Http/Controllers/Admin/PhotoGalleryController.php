@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\CityMaster as Table;
+use App\Models\PhotoGallary as Table;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Http\Request;
 
-class CityMasterController extends Controller {
-    protected $handle_name = 'city_master';
-    protected $handle_name_plural = 'city_master';
+class PhotoGalleryController extends Controller {
+    protected $handle_name = 'Photo Gallary';
+    protected $handle_name_plural = 'photo_gallary_master';
 
     public function index() {
         $all_count = Table::count();
@@ -29,6 +29,7 @@ class CityMasterController extends Controller {
             ],
         ]);
     }
+
     public function create() {
         return kview($this->handle_name_plural . '.manage', [
             'index_route' => route('admin.' . $this->handle_name_plural . '.index'),
@@ -40,24 +41,24 @@ class CityMasterController extends Controller {
             ],
         ]);
     }
+
     public function edit(Request $request) {
         $ecrypted_id = $request->encrypted_id;
         $id = Crypt::decryptString($ecrypted_id);
         $data = Table::where('id', '=', $id)->first();
-
 
         return kview($this->handle_name_plural . '.manage', [
             'index_route' => route('admin.' . $this->handle_name_plural . '.index'),
             'form_action' => route('admin.' . $this->handle_name_plural . '.update'),
             'edit' => 1,
             'data' => $data,
-
             'module_names' => [
                 'singular' => $this->handle_name,
                 'plural' => $this->handle_name_plural,
             ],
         ]);
     }
+
     public function show(Request $request) {
         $id = Crypt::decryptString($request->encrypted_id);
         $data = Table::findOrFail($id);
@@ -72,62 +73,91 @@ class CityMasterController extends Controller {
     }
 
     public function store(Request $request) {
-        try {
-            $request->validate([
-                'city_name' => 'required',
-            ]);
 
-            $categoryProduct = Table::create([
-                'city_name' => $request->city_name,
-                'is_status' =>  1,
-                'created_by' => auth()->user()->name,
-            ]);
+        $request->validate([
+            'photo_for' => 'required|string|max:255',
+            'photo_name' => 'required|string|max:255',
+            'photo_description' => 'required|string|max:255',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-            return redirect()
-                ->route('admin.' . $this->handle_name_plural . '.index')
-                ->with('success', 'New ' . ucfirst($this->handle_name) . ' has been added.');
-        } catch (Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoFile = $request->file('photo');
+            $photoDirectory = public_path('gallery');
+
+            if (!file_exists($photoDirectory)) {
+                mkdir($photoDirectory, 0777, true);
+            }
+
+            $photoName = uniqid() . '_' . time() . '.' . $photoFile->getClientOriginalExtension();
+            $photoFile->move($photoDirectory, $photoName);
+            $photoPath = 'gallery/' . $photoName;
         }
-    }
-    public function update(Request $request) {
-        // try {
-        //     $id = $request->id;
-        //     $categoryProduct = Table::findOrFail($id);
-        //     $categoryProduct->update($request->only([
-        //         'city_name',
-        //         'is_status',
-        //         'created_by',
-        //         'modified_by'
-        //     ]));
 
-        //     return redirect()
-        //         ->route('admin.' . $this->handle_name_plural . '.index')
-        //         ->with('success', ucfirst($this->handle_name) . ' has been updated.');
-        // } catch (Exception $e) {
-        //     return redirect()->back()->with('error', $e->getMessage());
-        // }
+        $branch = Table::create([
+            'photo_for' => $request->photo_for,
+            'photo_name' => $request->photo_name,
+            'photo' => $photoPath,
+            'photo_description' => $request->photo_description,
+            'is_status' => 1,
+            'created_by' => auth()->user()->name,
+        ]);
+
+        return redirect()
+            ->route('admin.' . $this->handle_name_plural . '.index')
+            ->with('success', 'New ' . ucfirst($this->handle_name) . ' has been added.');
+    }
+
+    private function generateBranchCode() {
+        $lastBranch = Table::latest('id')->first();
+        return 'COMP' . str_pad(($lastBranch->id ?? 0) + 1, 5, '0', STR_PAD_LEFT);
+    }
+
+    public function update(Request $request) {
         try {
+            $id = $request->id;
+            $company = Table::findOrFail($id);
             $request->validate([
-                'city_name' => 'required',
+                'photo_for' => 'required|string|max:255',
+                'photo_name' => 'required|string|max:255',
+                'photo_description' => 'required|string|max:255',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
-            $id = $request->id;
-            $categoryProduct = Table::findOrFail($id);
+            if ($request->hasFile('photo')) {
+                if ($company->com_logo) {
+                    $oldPhotoPath = public_path($company->com_logo);
+                    if (file_exists($oldPhotoPath)) {
+                        unlink($oldPhotoPath);
+                    }
+                }
 
-            $categoryProduct->update([
-                'city_name' => $request->city_name,
-                'is_status' =>  1,
+                $photoFile = $request->file('photo');
+                $photoName = time() . '_photo.' . $photoFile->getClientOriginalExtension();
+                $photoPath = 'gallery/' . $photoName;
+                $photoFile->move(public_path('gallery'), $photoName);
+            } else {
+                $photoPath = $company->photo;
+            }
+
+            $company->update([
+                'photo_for' => $request->photo_for,
+                'photo_name' => $request->photo_name,
+                'photo' => $photoPath,
+                'photo_description' => $request->photo_description,
+                'is_status' => 1,
                 'modified_by' => auth()->user()->name,
             ]);
 
             return redirect()
                 ->route('admin.' . $this->handle_name_plural . '.index')
-                ->with('success', ucfirst($this->handle_name) . ' has been updated.');
+                ->with('success', 'Comapny has been updated successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
     public function delete(Request $request) {
         $action = $request->action;
         $is_bulk = $request->is_bulk;
@@ -159,12 +189,12 @@ class CityMasterController extends Controller {
                     }
                     break;
             }
-
             return 1;
         } catch (Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
     public function ajax(Request $request) {
         $current_page = $request->page_number;
         if (isset($request->limit)) {
@@ -176,7 +206,7 @@ class CityMasterController extends Controller {
         $modalObject = new Table();
         if (isset($request->string)) {
             $string = $request->string;
-            $modalObject = $modalObject->where('name', 'like', "%" . $request->string . "%");
+            $modalObject = $modalObject->where('br_code', 'like', "%" . $request->string . "%");
             // $modalObject = $modalObject->orWhere('name','like',"%".$request->string."%");
         }
 

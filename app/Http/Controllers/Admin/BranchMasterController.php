@@ -104,9 +104,6 @@ class BranchMasterController extends Controller {
             'br_city_id' => 'required|exists:city_master,id',
             'br_area_id' => 'required|exists:area_master,id',
             'br_pin_code' => 'nullable|string|max:10',
-            'is_status' => 'required|boolean',
-            'created_by' => 'required',
-            'modified_by' => 'nullable',
         ]);
 
         $branch_code = $this->generateBranchCode();
@@ -162,9 +159,8 @@ class BranchMasterController extends Controller {
             'br_city_id' => $request->br_city_id,
             'br_area_id' => $request->br_area_id,
             'br_pin_code' => $request->br_pin_code,
-            'is_status' => $request->is_status,
-            'created_by' => $request->created_by,
-            'modified_by' => $request->modified_by,
+            'is_status' => 1,
+            'created_by' => auth()->user()->name,
         ]);
 
         return redirect()
@@ -200,27 +196,8 @@ class BranchMasterController extends Controller {
                 'br_city_id' => 'required|exists:city_master,id',
                 'br_area_id' => 'required|exists:area_master,id',
                 'br_pin_code' => 'nullable|string|max:10',
-                'is_status' => 'required|boolean',
-                'created_by' => 'required',
-                'modified_by' => 'nullable',
             ]);
-            // if ($request->hasFile('br_photo')) {
-            //     if ($branch->br_photo) {
-            //         Storage::disk('public')->delete($branch->br_photo); // Purani photo delete karna
-            //     }
-            //     $photoPath = $request->file('br_photo')->store('branches', 'public');
-            // } else {
-            //     $photoPath = $branch->br_photo;
-            // }
 
-            // if ($request->hasFile('br_sign')) {
-            //     if ($branch->br_sign) {
-            //         Storage::disk('public')->delete($branch->br_sign);
-            //     }
-            //     $signPath = $request->file('br_sign')->store('signatures', 'public');
-            // } else {
-            //     $signPath = $branch->br_sign;
-            // }
             if ($request->hasFile('br_photo')) {
                 if ($branch->br_photo) {
                     $oldPhotoPath = public_path($branch->br_photo);
@@ -271,8 +248,8 @@ class BranchMasterController extends Controller {
                 'br_city_id' => $request->br_city_id,
                 'br_area_id' => $request->br_area_id,
                 'br_pin_code' => $request->br_pin_code,
-                'is_status' => $request->is_status,
-                'modified_by' => $request->modified_by,
+                'is_status' => 1,
+                'modified_by' => auth()->user()->name,
             ]);
 
             return redirect()

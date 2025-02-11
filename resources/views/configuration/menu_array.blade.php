@@ -193,6 +193,24 @@ $menu = [
             ],
         ],
     ],
+    11 => [
+        'name' => 'Photo Gallery',
+        'icon' => 'fa fa-file',
+        'dropdown' => true,
+        'route' => '',
+        'dropdown_items' => [
+            0 => [
+                'name' => 'Add Gallery',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.photo_gallary_master.create',
+            ],
+            1 => [
+                'name' => 'Manage Gallery',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.photo_gallary_master.index',
+            ],
+        ],
+    ],
 ];
 
 unset($menuItem, $dropdownItem);

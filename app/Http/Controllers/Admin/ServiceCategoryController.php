@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\ServiceRequests\UpdateService as UpdateRequest;
 use App\Http\Requests\ServiceRequests\AddService as AddRequest;
 use Illuminate\Http\Request;
+use DB;
 
 class ServiceCategoryController extends Controller {
     protected $handle_name = 'Service Categories';
@@ -32,10 +33,12 @@ class ServiceCategoryController extends Controller {
         ]);
     }
     public function create() {
+        $vehicals = DB::table('vehicles')->get();
         return kview($this->handle_name_plural . '.manage', [
             'index_route' => route('admin.' . $this->handle_name_plural . '.index'),
             'form_action' => route('admin.' . $this->handle_name_plural . '.store'),
             'edit' => 0,
+            'vehicles' => $vehicals,
             'module_names' => [
                 'singular' => $this->handle_name,
                 'plural' => $this->handle_name_plural,
@@ -45,6 +48,7 @@ class ServiceCategoryController extends Controller {
     public function edit(Request $request) {
         $ecrypted_id = $request->encrypted_id;
         $id = Crypt::decryptString($ecrypted_id);
+        $vehicles = DB::table('vehicles')->get();
         $data = ServiceCategory::where('id', '=', $id)->first();
 
         return kview($this->handle_name_plural . '.manage', [
@@ -52,7 +56,7 @@ class ServiceCategoryController extends Controller {
             'form_action' => route('admin.' . $this->handle_name_plural . '.update'),
             'edit' => 1,
             'data' => $data,
-
+            'vehicles' => $vehicles,
             'module_names' => [
                 'singular' => $this->handle_name,
                 'plural' => $this->handle_name_plural,
@@ -76,18 +80,12 @@ class ServiceCategoryController extends Controller {
         try {
             $request->validate([
                 'sc_name' => 'required',
-                'sc_bike_car' => 'required|string|max:255',
+                // 'sc_bike_car' => 'required|in:bike,car',
                 'sc_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image
                 'sc_description' => 'nullable',
-                'is_status' => 'nullable',
-                'created_by' => 'nullable',
-                'modified_by' => 'nullable',
+                'vehical_id' => 'required|exists:vehicles,id',
             ]);
 
-            // $photoPath = null;
-            // if ($request->hasFile('sc_photo')) {
-            //     $photoPath = $request->file('sc_photo')->store('services', 'public'); // Store in 'products' folder in 'storage/app/public'
-            // }
             $photoPath = null;
             if ($request->hasFile('sc_photo')) {
                 $targetDirectory = public_path('services');
@@ -101,12 +99,12 @@ class ServiceCategoryController extends Controller {
             }
             $categoryProduct = ServiceCategory::create([
                 'sc_name' => $request->sc_name,
-                'sc_bike_car' => $request->sc_bike_car,
+                // 'sc_bike_car' => $request->sc_bike_car,
                 'sc_photo' => $photoPath,
+                'vehical_id' => $request->vehical_id,
                 'sc_description' => $request->sc_description,
-                'is_status' => $request->is_status,
-                'created_by' => $request->created_by,
-                'modified_by' => $request->modified_by,
+                'is_status' =>  1,
+                'created_by' => auth()->user()->name,
             ]);
 
             return redirect()
@@ -120,25 +118,15 @@ class ServiceCategoryController extends Controller {
         try {
             $request->validate([
                 'sc_name' => 'required',
-                'sc_bike_car' => 'required|string|max:255',
+                // 'sc_bike_car' => 'required|in:bike,car',
+                'vehical_id' => 'required|exists:vehicles,id',
                 'sc_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image
                 'sc_description' => 'required',
-                'is_status' => 'nullable',
-                'created_by' => 'nullable',
-                'modified_by' => 'nullable',
             ]);
 
             $id = $request->id;
             $categoryProduct = ServiceCategory::findOrFail($id);
 
-            // $photoPath = $categoryProduct->sc_photo;
-            // if ($request->hasFile('sc_photo')) {
-            //     if ($photoPath) {
-            //         \Storage::disk('public')->delete($photoPath);
-            //     }
-
-            //     $photoPath = $request->file('sc_photo')->store('services', 'public');
-            // }
             $photoPath = $categoryProduct->sc_photo;
 
             if ($request->hasFile('sc_photo')) {
@@ -157,12 +145,12 @@ class ServiceCategoryController extends Controller {
 
             $categoryProduct->update([
                 'sc_name' => $request->sc_name,
-                'sc_bike_car' => $request->sc_bike_car,
+                // 'sc_bike_car' => $request->sc_bike_car,
                 'sc_photo' => $photoPath,
+                'vehical_id' => $request->vehical_id,
                 'sc_description' => $request->sc_description,
-                'is_status' => $request->is_status,
-                'created_by' => $request->created_by,
-                'modified_by' => $request->modified_by,
+                'is_status' =>  1,
+                'modified_by' => auth()->user()->name,
             ]);
 
             return redirect()

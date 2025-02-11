@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\CompanyMaster;
 use JWTAuth;
 
 use App\Models\User;
@@ -14,6 +15,7 @@ use Spatie\Permission\Models\Role;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use DB;
 
 class ApiController extends Controller {
     /**
@@ -180,6 +182,95 @@ class ApiController extends Controller {
                 'message' => 'Services fetched successfully',
                 'data' => $services,
             ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching services',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getCompaniesForVehicle(Request $request) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+            $request->validate([
+                'vehicle_id' => 'required|exists:vehicles,id',
+            ]);
+            $companies = CompanyMaster::where('vehical_id', $request->vehicle_id)
+                ->get()
+                ->map(function ($company) {
+                    return [
+                        'id' => $company->id,
+                        'com_code' => $company->com_code,
+                        'com_name' => $company->com_name,
+                        'com_logo' => asset($company->com_logo), // Full path for logo
+                        'is_status' => $company->is_status == 1 ? 'Active' : 'Inactive', // Convert status to text
+                        'vehical_id' => $company->vehical_id
+                    ];
+                });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Companies fetched successfully',
+                'data' => $companies
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching services',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function getVehicleModels(Request $request) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+            $request->validate([
+                'vehicle_id' => 'required|exists:company_master,vehical_id',
+                'company_id' => 'required|exists:company_master,id',
+            ]);
+
+            // Fetch vehicle models based on vehicle_id and company_id
+            $vehicleModels = DB::table('model_master')
+                ->where('com_id', $request->company_id)
+                ->join('company_master', 'model_master.com_id', '=', 'company_master.id')
+                ->where('company_master.vehical_id', $request->vehicle_id)
+                ->select(
+                    'model_master.id',
+                    'model_master.model_code',
+                    'model_master.model_name',
+                    'model_master.model_photo',
+                    'model_master.model_description'
+                )
+                ->get()
+                ->map(function ($model) {
+                    return [
+                        'id' => $model->id,
+                        'model_code' => $model->model_code,
+                        'model_name' => $model->model_name,
+                        'model_photo' => asset($model->model_photo), // Full path for model image
+                        'model_description' => $model->model_description
+                    ];
+                });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Vehicle models fetched successfully',
+                'data' => $vehicleModels
+            ]);
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,

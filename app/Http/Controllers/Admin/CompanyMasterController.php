@@ -7,6 +7,7 @@ use App\Models\CompanyMaster as Table;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use Exception;
+use DB;
 
 class CompanyMasterController extends Controller {
     protected $handle_name = 'company_master';
@@ -31,10 +32,12 @@ class CompanyMasterController extends Controller {
     }
 
     public function create() {
+        $vehicals = DB::table('vehicles')->get();
         return kview($this->handle_name_plural . '.manage', [
             'index_route' => route('admin.' . $this->handle_name_plural . '.index'),
             'form_action' => route('admin.' . $this->handle_name_plural . '.store'),
             'edit' => 0,
+            'vehicles' => $vehicals,
             'module_names' => [
                 'singular' => $this->handle_name,
                 'plural' => $this->handle_name_plural,
@@ -45,6 +48,7 @@ class CompanyMasterController extends Controller {
     public function edit(Request $request) {
         $ecrypted_id = $request->encrypted_id;
         $id = Crypt::decryptString($ecrypted_id);
+        $vehicles = DB::table('vehicles')->get();
         $data = Table::where('id', '=', $id)->first();
 
         return kview($this->handle_name_plural . '.manage', [
@@ -52,6 +56,7 @@ class CompanyMasterController extends Controller {
             'form_action' => route('admin.' . $this->handle_name_plural . '.update'),
             'edit' => 1,
             'data' => $data,
+            'vehicles' => $vehicles,
             'module_names' => [
                 'singular' => $this->handle_name,
                 'plural' => $this->handle_name_plural,
@@ -74,12 +79,10 @@ class CompanyMasterController extends Controller {
 
     public function store(Request $request) {
         $request->validate([
-            'bike_car' => 'required|string|max:255',
+            // 'bike_car' => 'required|string|max:255',
             'com_name' => 'required|string|max:255',
             'com_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'is_status' => 'required|boolean',
-            'created_by' => 'required',
-            'modified_by' => 'nullable',
+            'vehical_id' => 'required|exists:vehicles,id',
         ]);
 
         $com_code = $this->generateBranchCode();
@@ -103,11 +106,11 @@ class CompanyMasterController extends Controller {
         $branch = Table::create([
             'com_code' => $com_code,
             'com_name' => $request->com_name,
-            'bike_car' => $request->bike_car,
+            // 'bike_car' => $request->bike_car,
             'com_logo' => $photoPath,
-            'is_status' => $request->is_status,
-            'created_by' => $request->created_by,
-            'modified_by' => $request->modified_by,
+            'vehical_id' => $request->vehical_id,
+            'is_status' => 1,
+            'created_by' => auth()->user()->name,
         ]);
 
         return redirect()
@@ -125,12 +128,10 @@ class CompanyMasterController extends Controller {
             $id = $request->id;
             $company = Table::findOrFail($id);
             $request->validate([
-                'bike_car' => 'required|string|max:255',
+                // 'bike_car' => 'required|string|max:255',
                 'com_name' => 'required|string|max:255',
+                'vehical_id' => 'required|exists:vehicles,id',
                 'com_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'is_status' => 'required|boolean',
-                'created_by' => 'required',
-                'modified_by' => 'nullable',
             ]);
 
             if ($request->hasFile('com_logo')) {
@@ -151,10 +152,11 @@ class CompanyMasterController extends Controller {
 
             $company->update([
                 'com_name' => $request->com_name,
-                'bike_car' => $request->bike_car,
+                // 'bike_car' => $request->bike_car,
+                'vehical_id' => $request->vehical_id,
                 'com_logo' => $photoPath,
-                'is_status' => $request->is_status,
-                'modified_by' => $request->modified_by,
+                'is_status' => 1,
+                'modified_by' => auth()->user()->name,
             ]);
 
             return redirect()
