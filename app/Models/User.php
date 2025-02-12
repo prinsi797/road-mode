@@ -11,7 +11,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\Crypt;
 
-class User extends Authenticatable implements JWTSubject{
+class User extends Authenticatable implements JWTSubject {
     use Notifiable, SoftDeletes, HasRoles, HasFactory;
 
     /**
@@ -25,6 +25,10 @@ class User extends Authenticatable implements JWTSubject{
         'password',
         'country_code',
         'phone_number',
+        'u_code',
+        'u_fullname',
+        'u_adhar_photo',
+        'u_current_addr',
         'two_factor_code',
         'two_factor_expires_at',
         'two_factor_enable'

@@ -23,4 +23,6 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::get('get-service', [ApiController::class, 'getService']);
     Route::get('/get-companies-for-vehicle', [ApiController::class, 'getCompaniesForVehicle']);
     Route::get('/get-vehicle-models', [ApiController::class, 'getVehicleModels']);
+    Route::get('/services', [ApiController::class, 'getServicesByVehicle']);
+    Route::get('/branches', [ApiController::class, 'getBranches']);
 });

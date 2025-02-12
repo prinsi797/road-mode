@@ -51,11 +51,49 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
+                                        <label for="u_fullname">Full Name</label>
+                                        <input type="text" name="u_fullname" class="form-control k-input"
+                                            @if ($edit) value="{{ $data->u_fullname }}" @else value="{{ old('u_fullname') }}" @endif
+                                            id="u_fullname" aria-describedby="ufullnameHelp">
+                                        <small id="ufullnameHelp" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
                                         <label for="tagline">Email</label>
                                         <input type="text" name="email" class="form-control k-input"
                                             @if ($edit) value="{{ $data->email }}" @else value="{{ old('email') }}" @endif
                                             id="tagline" aria-describedby="taglineHelp">
                                         <small id="taglineHelp" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="u_current_addr">current Address</label>
+                                        <input type="text" name="u_current_addr" class="form-control k-input"
+                                            @if ($edit) value="{{ $data->u_current_addr }}" @else value="{{ old('u_current_addr') }}" @endif
+                                            id="u_current_addr" aria-describedby="ufullnameHelp">
+                                        <small id="ufullnameHelp" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="u_adhar_photo">Photo</label>
+                                        <input type="file" name="u_adhar_photo" class="form-control k-input"
+                                            id="u_adhar_photo">
+                                        @if ($edit && $data->u_adhar_photo)
+                                            <small>Current Photo: <a href="{{ asset($data->u_adhar_photo) }}"
+                                                    target="_blank">View</a></small>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="phone_number">phone number</label>
+                                        <input type="text" name="phone_number" class="form-control k-input"
+                                            @if ($edit) value="{{ $data->phone_number }}" @else value="{{ old('phone_number') }}" @endif
+                                            id="phone_number" aria-describedby="ufullnameHelp">
+                                        <small id="ufullnameHelp" class="form-text text-muted"></small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -116,7 +154,8 @@
                                     <div class="mb-3">
                                         <label for="new_password_confirmation">Confirm Password</label>
                                         <input type="password" name="password_confirmation" class="form-control k-input"
-                                            id="new_password_confirmation" aria-describedby="new_password_confirmationHelp">
+                                            id="new_password_confirmation"
+                                            aria-describedby="new_password_confirmationHelp">
                                         <small id="new_password_confirmationHelp" class="form-text text-muted"></small>
                                     </div>
                                 </div>
@@ -125,27 +164,27 @@
                     </div>
                     <br />
                     <!-- <div class="card">
-              <div class="card-body">
-                <div class="row form_sec">
-                  <div class="col-12">
-                    <h5>Two Factor Authentication (Email/SMS)</h5>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <label class="switch">
-                      <input type="checkbox" name="two_factor_enable" <?php if ($edit) {
-                          if ($data->two_factor_enable == 1) {
-                              echo 'checked';
-                          }
-                      } ?> class="two_factor_enable k-input" id="two_factor_enable">
-                      <span class="slider"></span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <br /> -->
+                                                                                          <div class="card-body">
+                                                                                            <div class="row form_sec">
+                                                                                              <div class="col-12">
+                                                                                                <h5>Two Factor Authentication (Email/SMS)</h5>
+                                                                                              </div>
+                                                                                            </div>
+                                                                                            <div class="row">
+                                                                                              <div class="col-md-6">
+                                                                                                <label class="switch">
+                                                                                                  <input type="checkbox" name="two_factor_enable" <?php if ($edit) {
+                                                                                                      if ($data->two_factor_enable == 1) {
+                                                                                                          echo 'checked';
+                                                                                                      }
+                                                                                                  } ?> class="two_factor_enable k-input" id="two_factor_enable">
+                                                                                                  <span class="slider"></span>
+                                                                                                </label>
+                                                                                              </div>
+                                                                                            </div>
+                                                                                          </div>
+                                                                                        </div>
+                                                                                        <br /> -->
                     <div class="row">
                         <div class="col-md-12">
                             <button type="submit" class="btn k-btn k-btn-primary add_site">

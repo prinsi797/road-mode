@@ -84,18 +84,59 @@ class UserController extends Controller {
             ],
         ]);
     }
+    // public function store(AddRequest $request) {
+    //     try {
+    //         if (isset($request->two_factor_enable) && $request->two_factor_enable == "on") {
+    //             $two_factor_enable = 1;
+    //         } else {
+    //             $two_factor_enable = 0;
+    //         }
+
+    //         $table = Table::create([
+    //             'name' => $request->name,
+    //             'email' => $request->email,
+    //             'password' => bcrypt($request->password),
+    //             'phone_number' => $request->phone_number,
+    //             'u_code' => $request->u_code,
+    //             'u_fullname' => $request->u_fullname,
+    //             'u_adhar_photo' => $request->u_adhar_photo,
+    //             'two_factor_enable' => $two_factor_enable
+    //         ]);
+
+    //         if (isset($request->role)) {
+    //             $table->syncRoles($request->role);
+    //         }
+
+    //         return redirect()->to(route('admin.' . $this->handle_name_plural . '.index'))->with('success', 'New ' . ucfirst($this->handle_name) . ' has been added.');
+    //     } catch (Exception $e) {
+    //         return $e->getMessage();
+    //         return redirect()->back()->with('error', $e->getMessage());
+    //     }
+    // }
     public function store(AddRequest $request) {
         try {
-            if (isset($request->two_factor_enable) && $request->two_factor_enable == "on") {
-                $two_factor_enable = 1;
-            } else {
-                $two_factor_enable = 0;
+            $two_factor_enable = isset($request->two_factor_enable) && $request->two_factor_enable == "on" ? 1 : 0;
+
+            $photoPath = null;
+            if ($request->hasFile('u_adhar_photo')) {
+                $targetDirectory = public_path('users');
+                if (!file_exists($targetDirectory)) {
+                    mkdir($targetDirectory, 0777, true);
+                }
+                $file = $request->file('u_adhar_photo');
+                $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move($targetDirectory, $fileName);
+                $photoPath = 'users/' . $fileName;
             }
 
             $table = Table::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => bcrypt($request->password),
+                'phone_number' => $request->phone_number,
+                'u_code' => $request->u_code,
+                'u_fullname' => $request->u_fullname,
+                'u_adhar_photo' => $photoPath,
                 'two_factor_enable' => $two_factor_enable
             ]);
 
@@ -105,47 +146,206 @@ class UserController extends Controller {
 
             return redirect()->to(route('admin.' . $this->handle_name_plural . '.index'))->with('success', 'New ' . ucfirst($this->handle_name) . ' has been added.');
         } catch (Exception $e) {
-            return $e->getMessage();
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
     public function update(UpdateRequest $request) {
         try {
-            if (isset($request->two_factor_enable) && $request->two_factor_enable == "on") {
-                $two_factor_enable = 1;
-            } else {
-                $two_factor_enable = 0;
+            $two_factor_enable = isset($request->two_factor_enable) && $request->two_factor_enable == "on" ? 1 : 0;
+
+            // Handle file upload for 'u_adhar_photo'
+            $photoPath = null;
+            if ($request->hasFile('u_adhar_photo')) {
+                $targetDirectory = public_path('users');
+                if (!file_exists($targetDirectory)) {
+                    mkdir($targetDirectory, 0777, true);
+                }
+                $file = $request->file('u_adhar_photo');
+                $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move($targetDirectory, $fileName);
+                $photoPath = 'users/' . $fileName;
             }
+
             $update_data = [
                 'name' => $request->name,
                 'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'u_code' => $request->u_code,
+                'u_fullname' => $request->u_fullname,
                 'two_factor_enable' => $two_factor_enable,
             ];
 
+            // Only update 'u_adhar_photo' if a new file is uploaded
+            if ($photoPath) {
+                $update_data['u_adhar_photo'] = $photoPath;
+            }
+
             if (isset($request->old_password)) {
-                // $password=  Hash::make($request->password);
-                $userObj = Table::where([
-                    'id' => $request->id,
-                ])->first();
+                $userObj = Table::where('id', $request->id)->first();
                 if (Hash::check($request->old_password, $userObj->password)) {
                     $update_data['password'] = bcrypt($request->password);
                 } else {
                     return redirect()->back()->with('error', "Old password is incorrect.");
                 }
             }
-            $where = [
-                'id' => $request->id
-            ];
 
+            $where = ['id' => $request->id];
             $user = Table::updateOrCreate($where, $update_data);
+
             if (isset($request->role)) {
                 $user->syncRoles($request->role);
             }
+
             return redirect()->to($user->show_route)->with('success', ucfirst($this->handle_name) . ' has been updated');
         } catch (Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
+    // public function store(Request $request) {
+    //     try {
+    //         $request->validate([
+    //             'name' => 'required',
+    //             'email' => 'required',
+    //             'u_adhar_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image
+    //             'u_fullname' => 'nullable',
+    //         ]);
+
+    //         if (isset($request->two_factor_enable) && $request->two_factor_enable == "on") {
+    //             $two_factor_enable = 1;
+    //         } else {
+    //             $two_factor_enable = 0;
+    //         }
+    //         $photoPath = null;
+    //         if ($request->hasFile('u_adhar_photo')) {
+    //             $targetDirectory = public_path('users');
+    //             if (!file_exists($targetDirectory)) {
+    //                 mkdir($targetDirectory, 0777, true);
+    //             }
+    //             $file = $request->file('u_adhar_photo');
+    //             $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+    //             $file->move($targetDirectory, $fileName);
+    //             $photoPath = 'users/' . $fileName;
+    //         }
+    //         $users = Table::create([
+    //             'name' => $request->name,
+    //             'email' => $request->email,
+    //             'password' => bcrypt($request->password),
+    //             'phone_number' => $request->phone_number,
+    //             'u_code' => $request->u_code,
+    //             'u_fullname' => $request->u_fullname,
+    //             'u_adhar_photo' => $photoPath,
+    //             'two_factor_enable' => $two_factor_enable
+    //         ]);
+
+    //         if (isset($request->role)) {
+    //             $users->syncRoles($request->role);
+    //         }
+
+    //         return redirect()
+    //             ->route('admin.' . $this->handle_name_plural . '.index')
+    //             ->with('success', 'New ' . ucfirst($this->handle_name) . ' has been added.');
+    //     } catch (Exception $e) {
+    //         return redirect()->back()->with('error', $e->getMessage());
+    //     }
+    // }
+
+    // public function update(Request $request) {
+    //     try {
+    //         $request->validate([
+    //             'name' => 'required',
+    //             'email' => 'required',
+    //             'u_adhar_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image
+    //             'u_fullname' => 'nullable',
+    //         ]);
+    //         if (isset($request->two_factor_enable) && $request->two_factor_enable == "on") {
+    //             $two_factor_enable = 1;
+    //         } else {
+    //             $two_factor_enable = 0;
+    //         }
+
+    //         $id = $request->id;
+    //         $user = Table::findOrFail($id);
+
+    //         $photoPath = $user->u_adhar_photo;
+
+    //         if ($request->hasFile('u_adhar_photo')) {
+    //             if ($photoPath && file_exists(public_path($photoPath))) {
+    //                 unlink(public_path($photoPath));
+    //             }
+    //             $targetDirectory = public_path('users');
+    //             if (!file_exists($targetDirectory)) {
+    //                 mkdir($targetDirectory, 0777, true);
+    //             }
+    //             $file = $request->file('u_adhar_photo');
+    //             $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+    //             $file->move($targetDirectory, $fileName);
+    //             $photoPath = 'users/' . $fileName;
+    //         }
+
+    //         $user->update([
+    //             'name' => $request->name,
+    //             'email' => $request->email,
+    //             'phone_number' => $request->phone_number,
+    //             'u_code' => $request->u_code,
+    //             'u_fullname' => $request->u_fullname,
+    //             'u_adhar_photo' => $photoPath,
+    //             'two_factor_enable' => $two_factor_enable,
+    //         ]);
+
+    //         if (isset($request->role)) {
+    //             $user->syncRoles($request->role);
+    //         }
+
+    //         return redirect()
+    //             ->route('admin.' . $this->handle_name_plural . '.index')
+    //             ->with('success', ucfirst($this->handle_name) . ' has been updated.');
+    //     } catch (Exception $e) {
+    //         return redirect()->back()->with('error', $e->getMessage());
+    //     }
+    // }
+
+    // public function update(UpdateRequest $request) {
+    //     try {
+    //         if (isset($request->two_factor_enable) && $request->two_factor_enable == "on") {
+    //             $two_factor_enable = 1;
+    //         } else {
+    //             $two_factor_enable = 0;
+    //         }
+    //         $update_data = [
+    //             'name' => $request->name,
+    //             'email' => $request->email,
+    //             'phone_number' => $request->phone_number,
+    //             'u_code' => $request->u_code,
+    //             'u_fullname' => $request->u_fullname,
+    //             'u_adhar_photo' => $request->u_adhar_photo,
+    //             'two_factor_enable' => $two_factor_enable,
+    //         ];
+
+    //         if (isset($request->old_password)) {
+    //             $userObj = Table::where([
+    //                 'id' => $request->id,
+    //             ])->first();
+    //             if (Hash::check($request->old_password, $userObj->password)) {
+    //                 $update_data['password'] = bcrypt($request->password);
+    //             } else {
+    //                 return redirect()->back()->with('error', "Old password is incorrect.");
+    //             }
+    //         }
+    //         $where = [
+    //             'id' => $request->id
+    //         ];
+
+    //         $user = Table::updateOrCreate($where, $update_data);
+    //         if (isset($request->role)) {
+    //             $user->syncRoles($request->role);
+    //         }
+    //         return redirect()->to($user->show_route)->with('success', ucfirst($this->handle_name) . ' has been updated');
+    //     } catch (Exception $e) {
+    //         return redirect()->back()->with('error', $e->getMessage());
+    //     }
+    // }
     public function ajax(Request $request) {
         $current_page = $request->page_number;
         if (isset($request->limit)) {

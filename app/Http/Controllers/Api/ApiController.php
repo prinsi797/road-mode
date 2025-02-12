@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\BranchMaster;
 use App\Models\CompanyMaster;
 use JWTAuth;
 
@@ -275,6 +276,76 @@ class ApiController extends Controller {
             return response()->json([
                 'status' => false,
                 'message' => 'An error occurred while fetching services',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function getServicesByVehicle(Request $request) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $request->validate([
+                'vehicle_id' => 'required|exists:service_cat_master,vehical_id',
+            ]);
+
+            $services = ServiceCategory::where('vehical_id', $request->vehicle_id)
+                ->where('is_status', 1)
+                ->get()
+                ->map(function ($service) {
+                    $service->sc_photo = url($service->sc_photo);
+                    $service->is_status = $service->is_status ? 'Active' : 'Inactive';
+
+                    return $service;
+                });
+
+            if ($services->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No services found for the given vehicle ID',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Services retrieved successfully',
+                'data' => $services,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching services',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getBranches() {
+        try {
+            $branches = BranchMaster::select('id', 'br_code', 'br_owner_name', 'br_mobile', 'br_user_name')
+                ->get();
+
+            if ($branches->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No branches found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Branches retrieved successfully',
+                'data' => $branches,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching branches',
                 'error' => $e->getMessage(),
             ], 500);
         }
