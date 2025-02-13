@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\ServiceRequests\UpdateService as UpdateRequest;
 use App\Http\Requests\ServiceRequests\AddService as AddRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use DB;
 
 class ServiceCategoryController extends Controller {
@@ -237,4 +238,75 @@ class ServiceCategoryController extends Controller {
 
         return kview($this->handle_name_plural . '.ajax', compact('data', 'page_number', 'limit', 'offset', 'pagination'));
     }
+
+    // public function toggleStatus(Request $request, $id) {
+    //     try {
+    //         $category = ServiceCategory::findOrFail($id);
+    //         $category->is_status = $request->is_status;
+    //         $category->save();
+
+    //         return response()->json(['success' => true, 'message' => 'Status updated successfully']);
+    //     } catch (Exception $e) {
+    //         return response()->json(['success' => false, 'message' => $e->getMessage()]);
+    //     }
+    // }
+    // public function toggleStatus(Request $request, $id) {
+    //     try {
+    //         Log::info('Request Data: ', $request->all()); // Logs the incoming data
+
+    //         $category = ServiceCategory::findOrFail($id);
+    //         $category->is_status = $request->is_status; // Update the status
+    //         $category->save(); // Save to the database
+
+    //         return response()->json(['success' => true, 'message' => 'Status updated successfully']);
+    //     } catch (Exception $e) {
+    //         return response()->json(['success' => false, 'message' => $e->getMessage()]);
+    //     }
+    // }
+    // public function toggleStatus(Request $request) {
+    //     $id = $request->input('id');
+    //     $currentStatus = $request->input('status');
+
+    //     $category = ServiceCategory::findOrFail($id);
+    //     $newStatus = !$currentStatus;
+    //     $category->is_status = $newStatus;
+    //     $category->save();
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'new_status' => $newStatus,
+    //     ]);
+    // }
+    public function toggleStatus(Request $request) {
+        try {
+            $category = ServiceCategory::findOrFail($request->id);
+            $category->is_status = !$category->is_status;
+            $category->save();
+
+            return response()->json([
+                'success' => true,
+                'new_status' => $category->is_status,
+                'message' => 'Status updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating status'
+            ], 500);
+        }
+    }
+    // public function toggleStatus(Request $request) {
+    //     $id = $request->input('id');
+    //     $currentStatus = $request->input('status');
+
+    //     $category = ServiceCategory::findOrFail($id);
+    //     $newStatus = !$currentStatus;
+    //     $category->is_status = $newStatus;
+    //     $category->save();
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'new_status' => $newStatus,
+    //     ]);
+    // }
 }

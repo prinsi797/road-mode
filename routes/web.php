@@ -86,6 +86,9 @@ Route::middleware(['auth', 'twofactor'])->prefix('admin')->group(function () {
     Route::post('categories/update', 'Admin\ServiceCategoryController@update')->name('admin.service_categories.update');
     Route::get('categories/ajax', 'Admin\ServiceCategoryController@ajax')->name('admin.service_categories.ajax');
     Route::post('categories/delete', 'Admin\ServiceCategoryController@delete')->name('admin.service_categories.delete');
+    // Route::post('/service_categories/toggle-status/{id}', 'Admin\ServiceCategoryController@toggleStatus')->name('admin.toggle.status');
+    // Route::post('service_categories/toggle-status', 'Admin\ServiceCategoryController@toggleStatus');
+    Route::post('/service-categories/toggle-status', 'Admin\ServiceCategoryController@toggleStatus')->name('service-categories.toggle-status');
 
     // city master
     Route::get('city', 'Admin\CityMasterController@index')->name('admin.city_master.index');
@@ -96,6 +99,7 @@ Route::middleware(['auth', 'twofactor'])->prefix('admin')->group(function () {
     Route::post('city/update', 'Admin\CityMasterController@update')->name('admin.city_master.update');
     Route::get('city/ajax', 'Admin\CityMasterController@ajax')->name('admin.city_master.ajax');
     Route::post('city/delete', 'Admin\CityMasterController@delete')->name('admin.city_master.delete');
+    Route::post('city/toggle-status', 'Admin\CityMasterController@toggleStatus')->name('city.toggle-status');
 
     //area master
 
@@ -117,6 +121,8 @@ Route::middleware(['auth', 'twofactor'])->prefix('admin')->group(function () {
     Route::post('branch/update', 'Admin\BranchMasterController@update')->name('admin.branch_master.update');
     Route::get('branch/ajax', 'Admin\BranchMasterController@ajax')->name('admin.branch_master.ajax');
     Route::post('branch/delete', 'Admin\BranchMasterController@delete')->name('admin.branch_master.delete');
+    Route::post('branch/toggle-status', 'Admin\BranchMasterController@toggleStatus')->name('branch.toggle-status');
+
     // Company Master
     Route::get('company', 'Admin\CompanyMasterController@index')->name('admin.company_master.index');
     Route::get('company/add', 'Admin\CompanyMasterController@create')->name('admin.company_master.create');
@@ -126,6 +132,7 @@ Route::middleware(['auth', 'twofactor'])->prefix('admin')->group(function () {
     Route::post('company/update', 'Admin\CompanyMasterController@update')->name('admin.company_master.update');
     Route::get('company/ajax', 'Admin\CompanyMasterController@ajax')->name('admin.company_master.ajax');
     Route::post('company/delete', 'Admin\CompanyMasterController@delete')->name('admin.company_master.delete');
+    Route::post('company/toggle-status', 'Admin\CompanyMasterController@toggleStatus')->name('company.toggle-status');
 
     //Model Master
 
@@ -137,6 +144,7 @@ Route::middleware(['auth', 'twofactor'])->prefix('admin')->group(function () {
     Route::post('model/update', 'Admin\ModelMasterController@update')->name('admin.model_master.update');
     Route::get('model/ajax', 'Admin\ModelMasterController@ajax')->name('admin.model_master.ajax');
     Route::post('model/delete', 'Admin\ModelMasterController@delete')->name('admin.model_master.delete');
+    Route::post('model/toggle-status', 'Admin\ModelMasterController@toggleStatus')->name('model.toggle-status');
 
 
     //Photo Gallery Master
@@ -149,6 +157,7 @@ Route::middleware(['auth', 'twofactor'])->prefix('admin')->group(function () {
     Route::post('gallery/update', 'Admin\PhotoGalleryController@update')->name('admin.photo_gallary_master.update');
     Route::get('gallery/ajax', 'Admin\PhotoGalleryController@ajax')->name('admin.photo_gallary_master.ajax');
     Route::post('gallery/delete', 'Admin\PhotoGalleryController@delete')->name('admin.photo_gallary_master.delete');
+    Route::post('gallery/toggle-status', 'Admin\PhotoGalleryController@toggleStatus')->name('photo_gallary_master.toggle-status');
 
 
     // For Roles

@@ -243,4 +243,22 @@ class ModelMasterController extends Controller {
 
         return kview($this->handle_name_plural . '.ajax', compact('data', 'page_number', 'limit', 'offset', 'pagination'));
     }
+    public function toggleStatus(Request $request) {
+        try {
+            $category = Table::findOrFail($request->id);
+            $category->is_status = !$category->is_status;
+            $category->save();
+
+            return response()->json([
+                'success' => true,
+                'new_status' => $category->is_status,
+                'message' => 'Status updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating status'
+            ], 500);
+        }
+    }
 }

@@ -4,6 +4,7 @@
 <head>
     @include('backend.layouts.partial.meta')
     <!-- Main CSS-->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" type="text/css"
         href="{{ asset('backend/assets/plugins/bootstrap-5.3.3/css/bootstrap.min.css') }}" />
     <!-- Backend CSS-->

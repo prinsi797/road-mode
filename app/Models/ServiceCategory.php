@@ -18,4 +18,8 @@ class ServiceCategory extends Model {
     public function vehicle() {
         return $this->belongsTo(Vehicle::class, 'vehical_id');
     }
+
+    protected $casts = [
+        'is_status' => 'boolean'
+    ];
 }

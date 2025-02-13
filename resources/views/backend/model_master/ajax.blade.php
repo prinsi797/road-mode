@@ -1,3 +1,50 @@
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+        margin: 0;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #dc3545;
+        transition: .4s;
+        border-radius: 24px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked+.slider {
+        background-color: #198754;
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(26px);
+    }
+</style>
 @if (isset($data) && count($data) > 0)
     @php
         $record_id = $offset;
@@ -11,10 +58,10 @@
                 <th>#</th>
                 <th>Model Code</th>
                 <th>Photo</th>
-                <th>Status</th>
                 <th>Created By</th>
                 <th>Modified By</th>
                 <th>Created At</th>
+                <th>Status</th>
                 <th></th>
             </tr>
         </thead>
@@ -28,10 +75,17 @@
                     <td>{{ ++$record_id }}</td>
                     <td><a href="{{ $v->show_route }}">{{ $v->model_code }}</a></td>
                     <td><img src="{{ asset($v->model_photo) }}" width="30" height="30" /></td>
-                    <td><span class="badge bg-danger">{{ getStatusText($v->is_status) }}</span></td>
+                    {{-- <td><span class="badge bg-danger">{{ getStatusText($v->is_status) }}</span></td> --}}
                     <td>{{ $v->created_by }}</td>
                     <td>{{ $v->modified_by }}</td>
                     <td>{{ Date('d M, Y', strtotime($v->created_at)) }}</td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" class="status-toggle" data-id="{{ $v->id }}"
+                                {{ $v->is_status ? 'checked' : '' }}>
+                            <span class="slider"></span>
+                        </label>
+                    </td>
                     <td>
                         @if ($v->deleted_at == null)
                             <a href="{{ route('admin.model_master.edit', ['encrypted_id' => Crypt::encryptString($v->id)]) }}"
@@ -56,7 +110,47 @@
         Oops, seems like no records are available.
     </div>
 @endif
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
 
+    $(document).on('change', '.status-toggle', function() {
+        let checkbox = $(this);
+        let id = checkbox.data('id');
+        checkbox.prop('disabled', true);
+
+        $.ajax({
+            url: '{{ route('model.toggle-status') }}',
+            type: 'POST',
+            data: {
+                id: id
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update checkbox state based on response
+                    checkbox.prop('checked', response.new_status);
+                    alert('Status updated successfully');
+                } else {
+                    // Revert checkbox state on failure
+                    checkbox.prop('checked', !checkbox.is(':checked'));
+                    alert('Failed to update status');
+                }
+            },
+            error: function() {
+                // Revert checkbox state on error
+                checkbox.prop('checked', !checkbox.is(':checked'));
+                alert('Error occurred while updating status');
+            },
+            complete: function() {
+                // Re-enable the checkbox
+                checkbox.prop('disabled', false);
+            }
+        });
+    });
+</script>
 @if ($pagination['total_records'] > $pagination['item_per_page'])
     <div class="card-header">
         <div class="pl-3">
