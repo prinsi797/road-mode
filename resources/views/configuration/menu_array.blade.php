@@ -211,6 +211,24 @@ $menu = [
             ],
         ],
     ],
+    12 => [
+        'name' => 'Package Master',
+        'icon' => 'fa fa-file',
+        'dropdown' => true,
+        'route' => '',
+        'dropdown_items' => [
+            0 => [
+                'name' => 'Add Package',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.package_master.create',
+            ],
+            1 => [
+                'name' => 'Manage Package',
+                'icon' => 'fa fa-circle-o',
+                'route' => 'admin.package_master.index',
+            ],
+        ],
+    ],
 ];
 
 unset($menuItem, $dropdownItem);

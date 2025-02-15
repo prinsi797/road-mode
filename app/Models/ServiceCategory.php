@@ -19,6 +19,10 @@ class ServiceCategory extends Model {
         return $this->belongsTo(Vehicle::class, 'vehical_id');
     }
 
+    public function packages() {
+        return $this->hasMany(packageMaster::class, 'service_id');
+    }
+
     protected $casts = [
         'is_status' => 'boolean'
     ];
