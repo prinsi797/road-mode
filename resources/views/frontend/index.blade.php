@@ -1,4 +1,98 @@
 @extends('frontend.layouts.frontend')
+<style>
+    .sticky-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 15px 30px;
+        background-color: #D81324 !important;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .sticky-button:hover {
+        background-color: #0b5ed7;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .sticky-form {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        z-index: 1000;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    /* Make responsive for mobile */
+    @media (max-width: 576px) {
+        .sticky-form {
+            width: 100%;
+            bottom: 0;
+            right: 0;
+        }
+
+        .sticky-button {
+            bottom: 20px;
+            right: 20px;
+        }
+    }
+
+    .manufacturer-popup,
+    .model-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        width: 90%;
+        max-width: 500px;
+    }
+
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .manufacturer-item,
+    .model-item {
+        cursor: pointer;
+        padding: 10px;
+        border: 1px solid #eee;
+        margin: 5px;
+        text-align: center;
+    }
+
+    .manufacturer-item:hover,
+    .model-item:hover {
+        background: #f8f9fa;
+    }
+
+    .manufacturer-grid,
+    .model-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+</style>
 @section('content')
     <!-- Carousel Start -->
     <div class="container-fluid p-0 mb-5">
@@ -57,7 +151,51 @@
     </div>
     <!-- Carousel End -->
 
+    <button id="chatButton" class="sticky-button">
+        <i class="fas fa-comment"></i> Start Chat
+    </button>
 
+    <!-- Sticky Form -->
+    <div class="sticky-form" style="display: none;">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 text-center text-white">Experience The Best Car Services In Visakhapatnam</h4>
+                <button type="button" class="btn-close btn-close-white" onclick="toggleForm()"></button>
+            </div>
+            <div class="card-body">
+                <form id="serviceForm">
+                    @csrf
+                    <div class="mb-3">
+                        <input type="text" class="form-control" value="VISAKHAPATNAM" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" id="selectedCar" class="form-control" placeholder="SELECT YOUR CAR" readonly
+                            onclick="showManufacturerPopup()">
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" placeholder="ENTER MOBILE NUMBER">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Get Instant Quotes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manufacturer Popup -->
+    <div class="popup-overlay" id="manufacturerOverlay"></div>
+    <div class="manufacturer-popup" id="manufacturerPopup">
+        <h5 class="mb-3">Select Manufacturer</h5>
+        <input type="text" class="form-control mb-3" placeholder="Search Brands">
+        <div class="manufacturer-grid" id="manufacturerGrid"></div>
+    </div>
+
+    <!-- Model Popup -->
+    <div class="popup-overlay" id="modelOverlay"></div>
+    <div class="model-popup" id="modelPopup">
+        <h5 class="mb-3">Select Model</h5>
+        <input type="text" class="form-control mb-3" placeholder="Search Models">
+        <div class="model-grid" id="modelGrid"></div>
+    </div>
     <!-- Service Start -->
     <div class="container-xxl py-5">
         <div class="container">
@@ -352,11 +490,14 @@
                                         style="height: 55px;">
                                 </div>
                                 <div class="col-12 col-sm-6">
-                                    <select class="form-select border-0" style="height: 55px;">
-                                        <option selected>Select A Service</option>
-                                        <option value="1">Service 1</option>
-                                        <option value="2">Service 2</option>
-                                        <option value="3">Service 3</option>
+                                    <select class="form-select border-0 service-select" style="height: 55px;">
+                                        <option value="">Select A Service</option>
+                                        @foreach ($services as $service)
+                                            <option value="{{ $service->id }}"
+                                                data-image="{{ asset($service->sc_photo) }}">
+                                                {{ $service->sc_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="col-12 col-sm-6">
@@ -380,7 +521,6 @@
         </div>
     </div>
     <!-- Booking End -->
-
 
     <!-- Team Start -->
     <div class="container-xxl py-5">
@@ -511,4 +651,118 @@
             </div>
         </div>
     </div>
+    {{-- download  --}}
+    <section class="container py-5 text-center">
+        <h2 class="mb-4">Download Rode Mode App</h2>
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <img src="{{ asset('frontend/img/gm-app-download-update.jpg') }}" alt="GoMechanic App"
+                    class="img-fluid">
+            </div>
+            <div class="col-md-6">
+                <p>Choose and book a seamless car service experience and get up to Rs 750 off with the Road Mode App</p>
+                <div class="d-flex justify-content-center gap-2 mb-3">
+                    <a href="#" class="btn btn-dark"><img
+                            src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                            alt="Google Play" style="width: 120px;"></a>
+                    <a href="#" class="btn btn-dark"><img
+                            src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+                            alt="App Store" style="width: 120px;"></a>
+                </div>
+                <div class="d-flex align-items-center justify-content-center">
+                    <div class="input-group" style="max-width: 400px;">
+                        <span class="input-group-text">
+                            <img src="{{ asset('frontend/img/flag.png') }}" alt="India Flag" style="width: 20px;">
+                        </span>
+                        <input type="text" class="form-control" placeholder="Mobile Number">
+                        <button class="btn btn-primary">GET APP LINK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // sticky button
+        let formVisible = false;
+
+        function toggleForm() {
+            const form = document.querySelector('.sticky-form');
+            const button = document.getElementById('chatButton');
+
+            if (formVisible) {
+                form.style.display = 'none';
+                button.style.display = 'block';
+            } else {
+                form.style.display = 'block';
+                button.style.display = 'none';
+            }
+
+            formVisible = !formVisible;
+        }
+
+        // Add click event to the button
+        document.getElementById('chatButton').addEventListener('click', toggleForm);
+        // sticky button  end
+        function showManufacturerPopup() {
+            $('#manufacturerOverlay, #manufacturerPopup').show();
+            loadManufacturers();
+        }
+
+        function showModelPopup(manufacturerId) {
+            $('#manufacturerPopup').hide();
+            $('#modelOverlay, #modelPopup').show();
+            loadModels(manufacturerId);
+        }
+
+        function loadManufacturers() {
+            $.ajax({
+                url: '/get-manufacturers',
+                method: 'GET',
+                success: function(data) {
+                    let html = '';
+                    data.forEach(manufacturer => {
+                        html += `
+                    <div class="manufacturer-item" onclick="showModelPopup(${manufacturer.id})">
+                        <img src="${manufacturer.com_logo}" alt="${manufacturer.com_name}" style="width: 80px; height: 40px;">
+                        <div>${manufacturer.com_name}</div>
+                    </div>
+                `;
+                    });
+                    $('#manufacturerGrid').html(html);
+                }
+            });
+        }
+
+        function loadModels(manufacturerId) {
+            $.ajax({
+                url: `/get-models/${manufacturerId}`,
+                method: 'GET',
+                success: function(data) {
+                    let html = '';
+                    data.forEach(model => {
+                        html += `
+                            <div class="model-item" onclick="selectModel('${model.model_name}')">
+                                <img src="${model.model_photo}" alt="${model.model_name}" style="width: 120px; height: 80px;">
+                                <div>${model.model_name}</div>
+                            </div>
+                        `;
+                    });
+                    $('#modelGrid').html(html);
+                }
+            });
+        }
+
+        function selectModel(modelName) {
+            $('#selectedCar').val(modelName);
+            $('#modelOverlay, #modelPopup').hide();
+        }
+
+        $(document).ready(function() {
+            $('.popup-overlay').click(function() {
+                $('.popup-overlay, .manufacturer-popup, .model-popup').hide();
+            });
+        });
+    </script>
 @endsection

@@ -138,7 +138,8 @@
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
         <a href="index.html" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
-            <h2 class="m-0 text-primary"><i class="fa fa-car me-3"></i>CarServ</h2>
+            {{-- <h2 class="m-0 text-primary"><i class="fa fa-car me-3"></i>CarServ</h2> --}}
+            <img src="{{ asset('backend/assets/images/Logo.png') }}" style="width:120px;">
         </a>
         <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
@@ -236,8 +237,47 @@
             </div>
         </div>
     </div>
-    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-
+    {{-- <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a> --}}
+    <!-- Sticky Form Area -->
+    {{-- <div class="btn btn-lg btn-primary btn-lg-square back-to-top">
+        <div class="sticky-top" style="top: 20px;">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5>Experience The Best Car Services In Visakhapatnam</h5>
+                </div>
+                <div class="card-body">
+                    <form action="#" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="text" id="phone" name="phone" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="service" class="form-label">Service</label>
+                            <select id="service" name="service" class="form-select" required>
+                                <option value="" disabled selected>Select a Service</option>
+                                <option value="car-repair">Car Repair</option>
+                                <option value="car-wash">Car Wash</option>
+                                <option value="oil-change">Oil Change</option>
+                            </select>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary w-100">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+    <!-- Sticky Form End -->
     {{-- footer section end  --}}
     <!-- Essential javascripts for application to work-->
 

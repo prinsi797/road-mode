@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 // frontend routes
 
 Route::get('/', 'Frontend\HomeController@index')->name('main');
+Route::get('/get-manufacturers', 'Frontend\HomeController@getManufacturers');
+Route::get('/get-models/{manufacturer_id}', 'Frontend\HomeController@getModels');
 Route::get('/about', 'Frontend\HomeController@about')->name('about');
 Route::get('/service', 'Frontend\HomeController@service')->name('service');
 Route::get('/booking', 'Frontend\HomeController@booking')->name('booking');

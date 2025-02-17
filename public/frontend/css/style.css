@@ -1,8 +1,8 @@
 /********** Template CSS **********/
 :root {
-    --primary: #D81324;
-    --secondary: #0B2154;
-    --light: #F2F2F2;
+    --primary: #d81324;
+    --secondary: #0b2154;
+    --light: #f2f2f2;
     --dark: #111111;
 }
 
@@ -18,32 +18,30 @@
     z-index: 99;
 }
 
-
 /*** Spinner ***/
 #spinner {
     opacity: 0;
     visibility: hidden;
-    transition: opacity .5s ease-out, visibility 0s linear .5s;
+    transition: opacity 0.5s ease-out, visibility 0s linear 0.5s;
     z-index: 99999;
 }
 
 #spinner.show {
-    transition: opacity .5s ease-out, visibility 0s linear 0s;
+    transition: opacity 0.5s ease-out, visibility 0s linear 0s;
     visibility: visible;
     opacity: 1;
 }
-
 
 /*** Button ***/
 .btn {
     font-weight: 500;
     text-transform: uppercase;
-    transition: .5s;
+    transition: 0.5s;
 }
 
 .btn.btn-primary,
 .btn.btn-secondary {
-    color: #FFFFFF;
+    color: #ffffff;
 }
 
 .btn-square {
@@ -57,8 +55,8 @@
 }
 
 .btn-lg-square {
-    width: 48px;
-    height: 48px;
+    /* width: 48px; */
+    height: auto;
 }
 
 .btn-square,
@@ -71,7 +69,6 @@
     font-weight: normal;
     border-radius: 2px;
 }
-
 
 /*** Navbar ***/
 .navbar .dropdown-toggle::after {
@@ -86,7 +83,7 @@
 .navbar-light .navbar-nav .nav-link {
     margin-right: 30px;
     padding: 25px 0;
-    color: #FFFFFF;
+    color: #ffffff;
     font-size: 15px;
     text-transform: uppercase;
     outline: none;
@@ -98,13 +95,13 @@
 }
 
 @media (max-width: 991.98px) {
-    .navbar-light .navbar-nav .nav-link  {
+    .navbar-light .navbar-nav .nav-link {
         margin-right: 0;
         padding: 10px 0;
     }
 
     .navbar-light .navbar-nav {
-        border-top: 1px solid #EEEEEE;
+        border-top: 1px solid #eeeeee;
     }
 }
 
@@ -120,7 +117,7 @@
 
 .navbar-light.sticky-top {
     top: -100px;
-    transition: .5s;
+    transition: 0.5s;
 }
 
 @media (min-width: 992px) {
@@ -131,17 +128,16 @@
         top: 150%;
         opacity: 0;
         visibility: hidden;
-        transition: .5s;
+        transition: 0.5s;
     }
 
     .navbar .nav-item:hover .dropdown-menu {
         top: 100%;
         visibility: visible;
-        transition: .5s;
+        transition: 0.5s;
         opacity: 1;
     }
 }
-
 
 /*** Header ***/
 .carousel-caption {
@@ -149,7 +145,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, .7);
+    background: rgba(0, 0, 0, 0.7);
     z-index: 1;
 }
 
@@ -169,7 +165,7 @@
         position: relative;
         min-height: 450px;
     }
-    
+
     #header-carousel .carousel-item img {
         position: absolute;
         width: 100%;
@@ -185,27 +181,26 @@
 }
 
 .page-header-inner {
-    background: rgba(0, 0, 0, .7);
+    background: rgba(0, 0, 0, 0.7);
 }
 
 .breadcrumb-item + .breadcrumb-item::before {
     color: var(--light);
 }
 
-
 /*** Facts ***/
 .fact {
-    background: linear-gradient(rgba(0, 0, 0, .7), rgba(0, 0, 0, .7)), url(../img/carousel-bg-1.jpg);
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        url(../img/carousel-bg-1.jpg);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
 }
 
-
 /*** Service ***/
 .service .nav .nav-link {
     background: var(--light);
-    transition: .5s;
+    transition: 0.5s;
 }
 
 .service .nav .nav-link.active {
@@ -213,13 +208,13 @@
 }
 
 .service .nav .nav-link.active h4 {
-    color: #FFFFFF !important;
+    color: #ffffff !important;
 }
-
 
 /*** Booking ***/
 .booking {
-    background: linear-gradient(rgba(0, 0, 0, .7), rgba(0, 0, 0, .7)), url(../img/carousel-bg-2.jpg) center center no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        url(../img/carousel-bg-2.jpg) center center no-repeat;
     background-size: cover;
 }
 
@@ -249,7 +244,6 @@
     border-bottom-color: var(--primary);
 }
 
-
 /*** Team ***/
 .team-item .team-overlay {
     display: flex;
@@ -257,7 +251,7 @@
     justify-content: center;
     background: var(--primary);
     transform: scale(0);
-    transition: .5s;
+    transition: 0.5s;
 }
 
 .team-item:hover .team-overlay {
@@ -266,19 +260,18 @@
 
 .team-item .team-overlay .btn {
     color: var(--primary);
-    background: #FFFFFF;
+    background: #ffffff;
 }
 
 .team-item .team-overlay .btn:hover {
-    color: #FFFFFF;
-    background: var(--secondary)
+    color: #ffffff;
+    background: var(--secondary);
 }
-
 
 /*** Testimonial ***/
 .testimonial-carousel .owl-item .testimonial-text,
 .testimonial-carousel .owl-item.center .testimonial-text * {
-    transition: .5s;
+    transition: 0.5s;
 }
 
 .testimonial-carousel .owl-item.center .testimonial-text {
@@ -286,7 +279,7 @@
 }
 
 .testimonial-carousel .owl-item.center .testimonial-text * {
-    color: #FFFFFF !important;
+    color: #ffffff !important;
 }
 
 .testimonial-carousel .owl-dots {
@@ -302,8 +295,8 @@
     margin: 0 5px;
     width: 15px;
     height: 15px;
-    border: 1px solid #CCCCCC;
-    transition: .5s;
+    border: 1px solid #cccccc;
+    transition: 0.5s;
 }
 
 .testimonial-carousel .owl-dot.active {
@@ -311,10 +304,10 @@
     border-color: var(--primary);
 }
 
-
 /*** Footer ***/
 .footer {
-    background: linear-gradient(rgba(0, 0, 0, .9), rgba(0, 0, 0, .9)), url(../img/carousel-bg-1.jpg) center center no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)),
+        url(../img/carousel-bg-1.jpg) center center no-repeat;
     background-size: cover;
 }
 
@@ -326,9 +319,9 @@
     align-items: center;
     justify-content: center;
     color: var(--light);
-    border: 1px solid #FFFFFF;
+    border: 1px solid #ffffff;
     border-radius: 35px;
-    transition: .3s;
+    transition: 0.3s;
 }
 
 .footer .btn.btn-social:hover {
@@ -340,11 +333,11 @@
     margin-bottom: 5px;
     padding: 0;
     text-align: left;
-    color: #FFFFFF;
+    color: #ffffff;
     font-size: 15px;
     font-weight: normal;
     text-transform: capitalize;
-    transition: .3s;
+    transition: 0.3s;
 }
 
 .footer .btn.btn-link::before {
@@ -363,7 +356,7 @@
 .footer .copyright {
     padding: 25px 0;
     font-size: 15px;
-    border-top: 1px solid rgba(256, 256, 256, .1);
+    border-top: 1px solid rgba(256, 256, 256, 0.1);
 }
 
 .footer .copyright a {
@@ -373,7 +366,7 @@
 .footer .footer-menu a {
     margin-right: 15px;
     padding-right: 15px;
-    border-right: 1px solid rgba(255, 255, 255, .3);
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .footer .footer-menu a:last-child {
