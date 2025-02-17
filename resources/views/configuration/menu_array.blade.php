@@ -67,25 +67,25 @@ $menu = [
     //         ],
     //     ],
     // ],
+    // 4 => [
+    //     'name' => 'Products',
+    //     'icon' => 'fa fa-file',
+    //     'dropdown' => true,
+    //     'route' => '',
+    //     'dropdown_items' => [
+    //         0 => [
+    //             'name' => 'Add Product',
+    //             'icon' => 'fa fa-circle-o',
+    //             'route' => 'admin.category_products.create',
+    //         ],
+    //         1 => [
+    //             'name' => 'Manage Product',
+    //             'icon' => 'fa fa-circle-o',
+    //             'route' => 'admin.category_products.index',
+    //         ],
+    //     ],
+    // ],
     4 => [
-        'name' => 'Products',
-        'icon' => 'fa fa-file',
-        'dropdown' => true,
-        'route' => '',
-        'dropdown_items' => [
-            0 => [
-                'name' => 'Add Product',
-                'icon' => 'fa fa-circle-o',
-                'route' => 'admin.category_products.create',
-            ],
-            1 => [
-                'name' => 'Manage Product',
-                'icon' => 'fa fa-circle-o',
-                'route' => 'admin.category_products.index',
-            ],
-        ],
-    ],
-    5 => [
         'name' => 'Service Category',
         'icon' => 'fa fa-file',
         'dropdown' => true,
@@ -103,7 +103,7 @@ $menu = [
             ],
         ],
     ],
-    6 => [
+    5 => [
         'name' => 'City Master',
         'icon' => 'fa fa-file',
         'dropdown' => true,
@@ -121,7 +121,7 @@ $menu = [
             ],
         ],
     ],
-    7 => [
+    6 => [
         'name' => 'Area Master',
         'icon' => 'fa fa-file',
         'dropdown' => true,
@@ -139,7 +139,7 @@ $menu = [
             ],
         ],
     ],
-    8 => [
+    7 => [
         'name' => 'Branch Master',
         'icon' => 'fa fa-file',
         'dropdown' => true,
@@ -157,7 +157,7 @@ $menu = [
             ],
         ],
     ],
-    9 => [
+    8 => [
         'name' => 'Company Master',
         'icon' => 'fa fa-file',
         'dropdown' => true,
@@ -175,7 +175,7 @@ $menu = [
             ],
         ],
     ],
-    10 => [
+    9 => [
         'name' => 'Model Master',
         'icon' => 'fa fa-file',
         'dropdown' => true,
@@ -193,7 +193,7 @@ $menu = [
             ],
         ],
     ],
-    11 => [
+    10 => [
         'name' => 'Photo Gallery',
         'icon' => 'fa fa-file',
         'dropdown' => true,
@@ -211,7 +211,7 @@ $menu = [
             ],
         ],
     ],
-    12 => [
+    11 => [
         'name' => 'Package Master',
         'icon' => 'fa fa-file',
         'dropdown' => true,

@@ -25,4 +25,16 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::get('/get-vehicle-models', [ApiController::class, 'getVehicleModels']);
     Route::get('/services', [ApiController::class, 'getServicesByVehicle']);
     Route::get('/branches', [ApiController::class, 'getBranches']);
+
+    // service api
+    Route::get('/service-category', [ApiController::class, 'serviceCategory']);
+    Route::post('/create-service', [ApiController::class, 'createService']);
+    Route::post('/services-update/{id}', [ApiController::class, 'updateService']);
+    Route::delete('/services-delete/{id}', [ApiController::class, 'deleteService']);
+
+    // city master
+    Route::get('/city', [ApiController::class, 'city']);
+    Route::post('/create-city', [ApiController::class, 'createCity']);
+    Route::post('/city-update/{id}', [ApiController::class, 'updateCity']);
+    Route::delete('/city-delete/{id}', [ApiController::class, 'deleteCity']);
 });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\BranchMaster;
+use App\Models\CityMaster;
 use App\Models\CompanyMaster;
 use JWTAuth;
 
@@ -346,6 +347,375 @@ class ApiController extends Controller {
             return response()->json([
                 'status' => false,
                 'message' => 'An error occurred while fetching branches',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function serviceCategory(Request $request) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $services = ServiceCategory::get()
+                ->map(function ($service) {
+                    $service->sc_photo = url($service->sc_photo);
+                    $service->is_status = $service->is_status ? 'Active' : 'Inactive';
+                    return $service;
+                });
+
+            if ($services->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No services found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Services retrieved successfully',
+                'data' => $services,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching services',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function createService(Request $request) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+            $data = $request->only('sc_name', 'sc_photo', 'sc_description', 'vehical_id');
+            $validator = Validator::make($data, [
+                'sc_name' => 'required',
+                'sc_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'sc_description' => 'nullable',
+                'vehical_id' => 'required|exists:vehicles,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 200);
+            }
+            $photoPath = null;
+            if ($request->hasFile('sc_photo')) {
+                try {
+                    $targetDirectory = public_path('services');
+                    if (!file_exists($targetDirectory)) {
+                        mkdir($targetDirectory, 0777, true);
+                    }
+                    $file = $request->file('sc_photo');
+                    $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $file->move($targetDirectory, $fileName);
+                    $photoPath = 'services/' . $fileName;
+                } catch (Exception $e) {
+                    return response()->json([
+                        'error' => ['sc_photo' => ['The sc photo failed to upload.']],
+                    ], 500);
+                }
+            }
+
+            $user = ServiceCategory::create([
+                'sc_name' => $request->sc_name,
+                'sc_photo' => $photoPath,
+                'sc_description' => $request->sc_description,
+                'vehical_id' => $request->vehical_id,
+                'is_status' =>  1,
+                'created_by' => auth()->user()->name,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Service add successfully',
+                'data' => $user
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching services',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function updateService(Request $request, $id) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $service = ServiceCategory::find($id);
+            if (!$service) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Service not found',
+                ], 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'sc_name' => 'required',
+                'sc_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'sc_description' => 'nullable',
+                'vehical_id' => 'required|exists:vehicles,id',
+            ]);
+
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 200);
+            }
+
+            // Handle photo upload if provided
+            $photoPath = $service->sc_photo; // Keep the current photo by default
+            if ($request->hasFile('sc_photo')) {
+                try {
+                    $targetDirectory = public_path('services');
+                    if (!file_exists($targetDirectory)) {
+                        mkdir($targetDirectory, 0777, true);
+                    }
+                    $file = $request->file('sc_photo');
+                    $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $file->move($targetDirectory, $fileName);
+
+                    // Delete the old photo if it exists
+                    if ($service->sc_photo && file_exists(public_path($service->sc_photo))) {
+                        unlink(public_path($service->sc_photo));
+                    }
+
+                    $photoPath = 'services/' . $fileName;
+                } catch (Exception $e) {
+                    \Log::error('File upload error: ' . $e->getMessage());
+                    return response()->json([
+                        'error' => ['sc_photo' => ['The sc photo failed to upload.']],
+                    ], 500);
+                }
+            }
+
+            // Update service details
+            $service->update([
+                'sc_name' => $request->sc_name ?? $service->sc_name,
+                'sc_photo' => $photoPath,
+                'sc_description' => $request->sc_description ?? $service->sc_description,
+                'vehical_id' => $request->vehical_id ?? $service->vehical_id,
+                'is_status' =>  1,
+                'modified_by' => auth()->user()->name,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Service updated successfully',
+                'data' => $service,
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            \Log::error('Error occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating the service',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function deleteService($id) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $service = ServiceCategory::find($id);
+            if (!$service) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Service not found',
+                ], 404);
+            }
+
+            if ($service->sc_photo && file_exists(public_path($service->sc_photo))) {
+                unlink(public_path($service->sc_photo));
+            }
+
+            // Delete the service record
+            // $service->delete();
+            $service->forceDelete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Service deleted successfully',
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while deleting the service',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // city master
+    public function city(Request $request) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $citys = CityMaster::get();
+
+
+            if ($citys->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No City found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'City retrieved successfully',
+                'data' => $citys,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching citys',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function createCity(Request $request) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+            $data = $request->only('city_name');
+            $validator = Validator::make($data, [
+                'city_name' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 200);
+            }
+
+            $city = CityMaster::create([
+                'city_name' => $request->city_name,
+                'is_status' =>  1,
+                'created_by' => auth()->user()->name,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'City add successfully',
+                'data' => $city
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching City',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateCity(Request $request, $id) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $city = CityMaster::find($id);
+            if (!$city) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'City not found',
+                ], 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'city_name' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 200);
+            }
+
+            // Update service details
+            $city->update([
+                'city_name' => $request->city_name ?? $city->city_name,
+                'is_status' =>  1,
+                'modified_by' => auth()->user()->name,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'City updated successfully',
+                'data' => $city,
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating the city',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function deleteCity($id) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $city = CityMaster::find($id);
+            if (!$city) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'city not found',
+                ], 404);
+            }
+
+            // Delete the service record
+            // $service->delete();
+            $city->forceDelete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'City deleted successfully',
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while deleting the city',
                 'error' => $e->getMessage(),
             ], 500);
         }
