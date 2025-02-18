@@ -35,6 +35,7 @@ class ServiceCategoryController extends Controller {
     }
     public function create() {
         $vehicals = DB::table('vehicles')->get();
+
         return kview($this->handle_name_plural . '.manage', [
             'index_route' => route('admin.' . $this->handle_name_plural . '.index'),
             'form_action' => route('admin.' . $this->handle_name_plural . '.store'),

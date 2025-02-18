@@ -67,23 +67,19 @@ class ApiController extends Controller {
             'role' => 'required|string|exists:roles,name' // Ensure the role exists in the roles table
         ]);
 
-        // Send failed response if request is not valid
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()], 200);
         }
 
-        // Create new user
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'mobile' => $request->mobile,
+            'phone_number' => $request->mobile,
             'password' => bcrypt($request->password)
         ]);
 
-        // Assign Role to User
         $user->assignRole($request->role);
 
-        // Return success response
         return response()->json([
             'status' => true,
             'message' => 'User registered successfully',
@@ -94,18 +90,15 @@ class ApiController extends Controller {
     public function login(Request $request) {
         $credentials = $request->only('email', 'password');
 
-        // Validate credentials
         $validator = Validator::make($credentials, [
             'email' => 'required|email',
             'password' => 'required|string|min:6|max:50'
         ]);
 
-        // Send failed response if validation fails
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()], 200);
         }
 
-        // Attempt login and create token
         try {
             if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json([
@@ -120,10 +113,8 @@ class ApiController extends Controller {
             ], 500);
         }
 
-        // Get the authenticated user
         $user = Auth::user();
 
-        // Return response with user details and token
         return response()->json([
             'success' => true,
             'message' => 'User login successful',
@@ -133,7 +124,7 @@ class ApiController extends Controller {
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone_number' => $user->phone_number,
-                'role' => $user->roles->pluck('name')->first() // Assuming the user has one role
+                'role' => $user->roles->pluck('name')->first()
             ]
         ], 200);
     }
@@ -716,6 +707,350 @@ class ApiController extends Controller {
             return response()->json([
                 'status' => false,
                 'message' => 'An error occurred while deleting the city',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // user get
+    public function User(Request $request) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $users = User::get();
+
+
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No user found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'User retrieved successfully',
+                'data' => $users,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching users',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function createUser(Request $request) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+            $data = $request->only('name', 'email', 'u_fullname', 'password', 'u_current_addr', 'phone_number', 'role', 'u_adhar_photo');
+            $validator = Validator::make($data, [
+                'name' => 'required',
+                'email' => 'required',
+                'phone_number' => 'required',
+                'u_fullname' => 'required',
+                'password' => 'required',
+                'u_current_addr' => 'required',
+                'role' => 'required|string|exists:roles,name'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 200);
+            }
+            $pack_code = $this->generateUserCode();
+
+            $two_factor_enable = isset($request->two_factor_enable) && $request->two_factor_enable == "on" ? 1 : 0;
+
+            $photoPath = null;
+            if ($request->hasFile('u_adhar_photo')) {
+                try {
+                    $targetDirectory = public_path('users');
+                    if (!file_exists($targetDirectory)) {
+                        mkdir($targetDirectory, 0777, true);
+                    }
+                    $file = $request->file('u_adhar_photo');
+                    $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $file->move($targetDirectory, $fileName);
+                    $photoPath = 'users/' . $fileName;
+                } catch (Exception $e) {
+                    return response()->json([
+                        'error' => ['u_adhar_photo' => ['The sc photo failed to upload.']],
+                    ], 500);
+                }
+            }
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'u_code' => $pack_code,
+                'password' => bcrypt($request->password),
+                'phone_number' => $request->phone_number,
+                'u_fullname' => $request->u_fullname,
+                'u_adhar_photo' => $photoPath,
+                'two_factor_enable' => $two_factor_enable
+            ]);
+
+            $user->assignRole($request->role);
+            if ($user->u_adhar_photo) {
+                $user->u_adhar_photo = asset($user->u_adhar_photo);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'City add successfully',
+                'data' => $user
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching City',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function generateUserCode() {
+        $lastUser = User::latest('id')->first();
+        return 'User' . str_pad(($lastUser->id ?? 0) + 1, 5, '0', STR_PAD_LEFT);
+    }
+
+
+    public function updateUser(Request $request, $id) {
+        try {
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $user = User::find($id);
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            $data = $request->only('name', 'email', 'u_fullname', 'u_current_addr', 'phone_number', 'role', 'u_adhar_photo');
+            $validator = Validator::make($data, [
+                'name' => 'required',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'phone_number' => 'required',
+                'u_fullname' => 'required',
+                'u_current_addr' => 'required',
+                'role' => 'required|string|exists:roles,name'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 422);
+            }
+
+            $photoPath = $user->u_adhar_photo;
+            if ($request->hasFile('u_adhar_photo')) {
+                try {
+                    $targetDirectory = public_path('users');
+                    if (!file_exists($targetDirectory)) {
+                        mkdir($targetDirectory, 0777, true);
+                    }
+                    $file = $request->file('u_adhar_photo');
+                    $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $file->move($targetDirectory, $fileName);
+                    $photoPath = 'users/' . $fileName;
+
+                    if ($user->u_adhar_photo && file_exists(public_path($user->u_adhar_photo))) {
+                        unlink(public_path($user->u_adhar_photo));
+                    }
+                } catch (Exception $e) {
+                    return response()->json([
+                        'error' => ['u_adhar_photo' => ['The photo failed to upload.']],
+                    ], 500);
+                }
+            }
+
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'u_fullname' => $request->u_fullname,
+                'u_current_addr' => $request->u_current_addr,
+                'u_adhar_photo' => $photoPath,
+            ]);
+
+            if ($request->has('role')) {
+                $user->syncRoles([$request->role]);
+            }
+            if ($user->u_adhar_photo) {
+                $user->u_adhar_photo = asset($user->u_adhar_photo);
+            }
+            return response()->json([
+                'status' => true,
+                'message' => 'User updated successfully',
+                'data' => $user,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating the user',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function userDelete($id) {
+        try {
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $user = User::find($id);
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            if ($user->u_adhar_photo && file_exists(public_path($user->u_adhar_photo))) {
+                unlink(public_path($user->u_adhar_photo));
+            }
+
+            // $user->delete();
+            $user->forceDelete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'User deleted successfully',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while deleting the user',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // Role create
+    public function createRole(Request $request) {
+        try {
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            if (!$authUser->hasRole('Admin')) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You do not have permission to create roles',
+                ], 403);
+            }
+
+            $data = $request->only('name');
+            $validator = Validator::make($data, [
+                'name' => 'required|string|unique:roles,name',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 422);
+            }
+
+            $role = Role::create(['name' => $request->name]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Role created successfully',
+                'data' => $role,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while creating the role',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getRoles() {
+        try {
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $roles = Role::all();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Roles retrieved successfully',
+                'data' => $roles,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching roles',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function updateRole(Request $request, $id) {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255', // Role name
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $role = Role::find($id);
+            if (!$role) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Role not found',
+                ], 404);
+            }
+
+            $role->name = $request->name;
+            $role->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Role updated successfully',
+                'data' => $role,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating the role',
                 'error' => $e->getMessage(),
             ], 500);
         }

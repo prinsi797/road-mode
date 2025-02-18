@@ -37,4 +37,15 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post('/create-city', [ApiController::class, 'createCity']);
     Route::post('/city-update/{id}', [ApiController::class, 'updateCity']);
     Route::delete('/city-delete/{id}', [ApiController::class, 'deleteCity']);
+
+    //user Master
+    Route::get('/user', [ApiController::class, 'User']);
+    Route::post('/create-user', [ApiController::class, 'createUser']);
+    Route::post('/user-update/{id}', [ApiController::class, 'updateUser']);
+    Route::delete('/user-delete/{id}', [ApiController::class, 'userDelete']);
+
+    //role Master
+    Route::post('/create-role', [ApiController::class, 'createRole']);
+    Route::get('/roles', [ApiController::class, 'getRoles']);
+    Route::post('/update-roles/{id}', [ApiController::class, 'updateRole']);
 });
