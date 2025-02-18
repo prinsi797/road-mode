@@ -34,7 +34,7 @@
                                     $menuRole = $menu_item['role'] ?? null;
                                     $menuDropdown = $menu_item['dropdown'] ?? false;
                                     $menuDropdownItems = $menu_item['dropdown_items'] ?? [];
-
+                                    
                                     if ($currentRoute == $menuRoute) {
                                         $link_active = 'active';
                                     }
@@ -103,7 +103,7 @@
 </div> --}}
 
 <div class="d-flex">
-    <div class="bg-dark text-white vh-100" style="width: 250px;">
+    <div class="bg-dark text-white vh-150" style="width: 250px;">
         <div class="py-4 px-3 text-center">
             <a class="navbar-brand text-white" href="{{ route('admin.dashboard') }}">
                 <img class="img-fluid logo-img mb-3 bg-white" src="{{ asset('backend/assets/images/Logo.png') }}" />
