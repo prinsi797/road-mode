@@ -86,7 +86,8 @@ class packageMasterController extends Controller {
                 'pack_net_amt' => 'required',
                 'pack_duration' => 'nullable',
                 'package_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image
-                'service_id' => 'required',
+                'service_id' => 'required|array', // Change to array validation
+                'service_id.*' => 'required|exists:service_cat_master,id',
             ]);
 
             $pack_code = $this->generatePackageCode();
@@ -104,10 +105,12 @@ class packageMasterController extends Controller {
                 $photoFile->move($photoDirectory, $photoName);
                 $photoPath = 'packages/' . $photoName;
             }
+            $serviceIds = implode(',', $request->service_id);
+
 
             $categoryProduct = Table::create([
                 'pack_code' => $pack_code,
-                'service_id' => $request->service_id,
+                'service_id' => $serviceIds,
                 'pack_name' => $request->pack_name,
                 'pack_duration' => $request->pack_duration,
                 'pack_other_faci' => $request->pack_other_faci,
@@ -138,7 +141,8 @@ class packageMasterController extends Controller {
                 'pack_net_amt' => 'required|string',
                 'pack_duration' => 'nullable',
                 'package_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image
-                'service_id' => 'required',
+                'service_id' => 'required|array',
+                'service_id.*' => 'required|exists:service_cat_master,id',
             ]);
 
             $id = $request->id;
@@ -160,9 +164,10 @@ class packageMasterController extends Controller {
                 $photoPath = $categoryProduct->package_logo;
             }
 
+            $serviceIds = implode(',', $request->service_id);
 
             $categoryProduct->update([
-                'service_id' => $request->service_id,
+                'service_id' => $serviceIds,
                 'pack_name' => $request->pack_name,
                 'package_logo' => $photoPath,
                 'pack_duration' => $request->pack_duration,

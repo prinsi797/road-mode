@@ -52,13 +52,26 @@
                                                 </option>
                                             @endforeach
                                         </select> --}}
-                                <div class="col-md-6">
+                                {{-- <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="service_id">service_id</label>
                                         <select name="service_id" class="form-control k-input" id="service_id">
                                             @foreach ($services as $service)
                                                 <option value="{{ $service->id }}"
                                                     @if (isset($data) && $data->service_id == $service->id) selected @endif>
+                                                    {{ $service->sc_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div> --}}
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="service_id">Services</label>
+                                        <select name="service_id[]" class="form-control k-input" id="service_id" multiple>
+                                            @foreach ($services as $service)
+                                                <option value="{{ $service->id }}"
+                                                    @if (isset($data) && in_array($service->id, explode(',', $data->service_id))) selected @endif>
                                                     {{ $service->sc_name }}
                                                 </option>
                                             @endforeach

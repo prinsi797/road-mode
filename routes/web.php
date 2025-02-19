@@ -194,13 +194,13 @@ Route::middleware(['auth', 'twofactor'])->prefix('admin')->group(function () {
     Route::post('pages/delete', 'Admin\PageController@delete')->name('admin.pages.delete');
 
     //package
-    Route::get('packages', 'Admin\PackageMasterController@index')->name('admin.package_master.index');
-    Route::get('packages/add', 'Admin\PackageMasterController@create')->name('admin.package_master.create');
-    Route::get('packages/edit/{encrypted_id}', 'Admin\PackageMasterController@edit')->name('admin.package_master.edit');
-    Route::get('packages/show/{encrypted_id}', 'Admin\PackageMasterController@show')->name('admin.package_master.show');
-    Route::post('packages/store', 'Admin\PackageMasterController@store')->name('admin.package_master.store');
-    Route::post('packages/update', 'Admin\PackageMasterController@update')->name('admin.package_master.update');
-    Route::get('packages/ajax', 'Admin\PackageMasterController@ajax')->name('admin.package_master.ajax');
-    Route::post('packages/delete', 'Admin\PackageMasterController@delete')->name('admin.package_master.delete');
+    Route::get('packages', 'Admin\packageMasterController@index')->name('admin.package_master.index');
+    Route::get('packages/add', 'Admin\packageMasterController@create')->name('admin.package_master.create');
+    Route::get('packages/edit/{encrypted_id}', 'Admin\packageMasterController@edit')->name('admin.package_master.edit');
+    Route::get('packages/show/{encrypted_id}', 'Admin\packageMasterController@show')->name('admin.package_master.show');
+    Route::post('packages/store', 'Admin\packageMasterController@store')->name('admin.package_master.store');
+    Route::post('packages/update', 'Admin\packageMasterController@update')->name('admin.package_master.update');
+    Route::get('packages/ajax', 'Admin\packageMasterController@ajax')->name('admin.package_master.ajax');
+    Route::post('packages/delete', 'Admin\packageMasterController@delete')->name('admin.package_master.delete');
     // Route::post('packages/toggle-status', 'Admin\PackageMasterController@toggleStatus')->name('model.toggle-status');
 });
