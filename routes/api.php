@@ -29,20 +29,20 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     // service api
     Route::get('/service-category', [ApiController::class, 'serviceCategory']);
     Route::post('/create-service', [ApiController::class, 'createService']);
-    Route::post('/services-update/{id}', [ApiController::class, 'updateService']);
-    Route::delete('/services-delete/{id}', [ApiController::class, 'deleteService']);
+    Route::post('/services-update', [ApiController::class, 'updateService']);
+    Route::delete('/services-delete', [ApiController::class, 'deleteService']);
 
     // city master
     Route::get('/city', [ApiController::class, 'city']);
     Route::post('/create-city', [ApiController::class, 'createCity']);
-    Route::post('/city-update/{id}', [ApiController::class, 'updateCity']);
-    Route::delete('/city-delete/{id}', [ApiController::class, 'deleteCity']);
+    Route::post('/city-update', [ApiController::class, 'updateCity']);
+    Route::delete('/city-delete', [ApiController::class, 'deleteCity']);
 
     //user Master
     Route::get('/user', [ApiController::class, 'User']);
     Route::post('/create-user', [ApiController::class, 'createUser']);
-    Route::post('/user-update/{id}', [ApiController::class, 'updateUser']);
-    Route::delete('/user-delete/{id}', [ApiController::class, 'userDelete']);
+    Route::post('/user-update', [ApiController::class, 'updateUser']);
+    Route::delete('/user-delete', [ApiController::class, 'userDelete']);
 
     //role Master
     Route::post('/create-role', [ApiController::class, 'createRole']);

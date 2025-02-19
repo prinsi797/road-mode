@@ -439,7 +439,7 @@ class ApiController extends Controller {
             ], 500);
         }
     }
-    public function updateService(Request $request, $id) {
+    public function updateService(Request $request) {
         try {
             $user = auth()->user();
             if (!$user) {
@@ -449,7 +449,9 @@ class ApiController extends Controller {
                 ], 401);
             }
 
-            $service = ServiceCategory::find($id);
+            $serviceId = $request->input('service_id');
+            $service = ServiceCategory::find($serviceId);
+
             if (!$service) {
                 return response()->json([
                     'status' => false,
@@ -458,12 +460,12 @@ class ApiController extends Controller {
             }
 
             $validator = Validator::make($request->all(), [
+                'service_id' => 'required|exists:service_cat_master,id',
                 'sc_name' => 'required',
                 'sc_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'sc_description' => 'nullable',
                 'vehical_id' => 'required|exists:vehicles,id',
             ]);
-
 
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->messages()], 200);
@@ -519,7 +521,7 @@ class ApiController extends Controller {
             ], 500);
         }
     }
-    public function deleteService($id) {
+    public function deleteService(Request $request) {
         try {
             $user = auth()->user();
             if (!$user) {
@@ -529,7 +531,20 @@ class ApiController extends Controller {
                 ], 401);
             }
 
-            $service = ServiceCategory::find($id);
+            $validator = Validator::make($request->all(), [
+                'service_id' => 'required|exists:service_cat_master,id'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $validator->errors(),
+                ], 422);
+            }
+
+            $serviceId = $request->input('service_id');
+            $service = ServiceCategory::find($serviceId);
+
             if (!$service) {
                 return response()->json([
                     'status' => false,
@@ -631,7 +646,7 @@ class ApiController extends Controller {
         }
     }
 
-    public function updateCity(Request $request, $id) {
+    public function updateCity(Request $request) {
         try {
             $user = auth()->user();
             if (!$user) {
@@ -641,7 +656,9 @@ class ApiController extends Controller {
                 ], 401);
             }
 
-            $city = CityMaster::find($id);
+            $cityId = $request->input('city_id');
+
+            $city = CityMaster::find($cityId);
             if (!$city) {
                 return response()->json([
                     'status' => false,
@@ -650,7 +667,8 @@ class ApiController extends Controller {
             }
 
             $validator = Validator::make($request->all(), [
-                'city_name' => 'required'
+                'city_name' => 'required',
+                'city_id' => 'required|exists:city_master,id',
             ]);
 
             if ($validator->fails()) {
@@ -677,7 +695,7 @@ class ApiController extends Controller {
             ], 500);
         }
     }
-    public function deleteCity($id) {
+    public function deleteCity(Request $request) {
         try {
             $user = auth()->user();
             if (!$user) {
@@ -687,7 +705,21 @@ class ApiController extends Controller {
                 ], 401);
             }
 
-            $city = CityMaster::find($id);
+            $validator = Validator::make($request->all(), [
+                'city_id' => 'required|exists:city_master,id'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $validator->errors(),
+                ], 422);
+            }
+
+            $cityId = $request->input('city_id');
+
+            $city = CityMaster::find($cityId);
+
             if (!$city) {
                 return response()->json([
                     'status' => false,
@@ -725,6 +757,12 @@ class ApiController extends Controller {
 
             $users = User::get();
 
+            if ($request->has('role')) {
+                $user->assignRole($request->role);
+            }
+
+            // Eager-load 'roles' for all users
+            $users = User::with('roles')->get();
 
             if ($users->isEmpty()) {
                 return response()->json([
@@ -828,7 +866,7 @@ class ApiController extends Controller {
     }
 
 
-    public function updateUser(Request $request, $id) {
+    public function updateUser(Request $request) {
         try {
             $authUser = auth()->user();
             if (!$authUser) {
@@ -838,7 +876,9 @@ class ApiController extends Controller {
                 ], 401);
             }
 
-            $user = User::find($id);
+            $userId = $request->input('user_id');
+
+            $user = User::find($userId);
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -846,8 +886,9 @@ class ApiController extends Controller {
                 ], 404);
             }
 
-            $data = $request->only('name', 'email', 'u_fullname', 'u_current_addr', 'phone_number', 'role', 'u_adhar_photo');
+            $data = $request->only('user_id', 'name', 'email', 'u_fullname', 'u_current_addr', 'phone_number', 'role', 'u_adhar_photo');
             $validator = Validator::make($data, [
+                'user_id' => 'required|exists:users,id',
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email,' . $user->id,
                 'phone_number' => 'required',
@@ -911,7 +952,7 @@ class ApiController extends Controller {
         }
     }
 
-    public function userDelete($id) {
+    public function userDelete(Request $request) {
         try {
             $authUser = auth()->user();
             if (!$authUser) {
@@ -920,8 +961,17 @@ class ApiController extends Controller {
                     'message' => 'Unauthorized access',
                 ], 401);
             }
-
-            $user = User::find($id);
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,id'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $validator->errors(),
+                ], 422);
+            }
+            $userId = $request->input('user_id');
+            $user   = User::find($userId);
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -1021,6 +1071,7 @@ class ApiController extends Controller {
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255', // Role name
+                'role_id' => 'required|exists:roles,id'
             ]);
 
             if ($validator->fails()) {
@@ -1031,7 +1082,9 @@ class ApiController extends Controller {
                 ], 422);
             }
 
-            $role = Role::find($id);
+            $roleId = $request->input('role_id');
+            $role = Role::find($roleId);
+
             if (!$role) {
                 return response()->json([
                     'status' => false,

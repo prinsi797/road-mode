@@ -92,6 +92,13 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 10px;
     }
+
+    /* Custom CSS (optional) */
+    .carousel-item img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
 </style>
 @section('content')
     <!-- Carousel Start -->
@@ -522,6 +529,50 @@
     </div>
     <!-- Booking End -->
 
+    {{-- slider --}}
+    <div class="container my-5">
+        <h2 class="mb-4">Original Spare Parts</h2>
+        <p>Extended Warranty with GoMechanic</p>
+
+        {{-- <div id="multiItemCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
+            <div class="carousel-inner"> --}}
+        <!-- Carousel Item 1 -->
+        <div class="carousel-item active">
+            <div class="row g-0">
+                <div class="col-3">
+                    <img src="{{ asset('frontend/img/valeo.jpg') }}" class="img-fluid" alt="Image 1">
+                </div>
+                <div class="col-3">
+                    <img src="{{ asset('frontend/img/bosch.jpg') }}" class="img-fluid" alt="Image 2">
+                </div>
+                <div class="col-3">
+                    <img src="{{ asset('frontend/img/mahle.jpg') }}" class="img-fluid" alt="Image 3">
+                </div>
+                <div class="col-3">
+                    <img src="{{ asset('frontend/img/ntn.jpg') }}" class="img-fluid" alt="Image 4">
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Add more carousel-item blocks as needed -->
+        {{-- </div> --}}
+
+        <!-- Carousel Controls -->
+        {{-- <button class="carousel-control-prev" type="button" data-bs-target="#multiItemCarousel"
+                data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#multiItemCarousel"
+                data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div> --}}
+    </div>
+    {{-- end slider --}}
+
     <!-- Team Start -->
     <div class="container-xxl py-5">
         <div class="container">
@@ -662,10 +713,10 @@
             <div class="col-md-6">
                 <p>Choose and book a seamless car service experience and get up to Rs 750 off with the Road Mode App</p>
                 <div class="d-flex justify-content-center gap-2 mb-3">
-                    <a href="#" class="btn btn-dark"><img
+                    <a href="#" class="btn"><img
                             src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
                             alt="Google Play" style="width: 120px;"></a>
-                    <a href="#" class="btn btn-dark"><img
+                    <a href="#" class="btn"><img
                             src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
                             alt="App Store" style="width: 120px;"></a>
                 </div>
@@ -682,7 +733,33 @@
         </div>
     </section>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        /**
+         * This small script clones the next slides in each .carousel-item
+         * so that you always see 4 images at a time, sliding one by one.
+         */
+        const items = document.querySelectorAll('#multiItemCarousel .carousel-item');
 
+        items.forEach((el) => {
+            // Number of items per slide
+            const minPerSlide = 5;
+            let next = el.nextElementSibling;
+
+            for (let i = 1; i < minPerSlide; i++) {
+                if (!next) {
+                    // Wrap carousel by using the first item if we’ve reached the end
+                    next = items[0];
+                }
+                // Clone the item from the next slide
+                const cloneChild = next.querySelector('div.col-3').cloneNode(true);
+                // Append it to the current .carousel-item
+                el.querySelector('.row').appendChild(cloneChild);
+
+                // Move on to the next .carousel-item
+                next = next.nextElementSibling;
+            }
+        });
+    </script>
     <script>
         // sticky button
         let formVisible = false;
