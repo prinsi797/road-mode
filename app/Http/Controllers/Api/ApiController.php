@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\BranchMaster;
 use App\Models\CityMaster;
 use App\Models\CompanyMaster;
+use App\Models\packageMaster;
 use JWTAuth;
 
 use App\Models\User;
@@ -1105,6 +1106,65 @@ class ApiController extends Controller {
                 'status' => false,
                 'message' => 'An error occurred while updating the role',
                 'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // package get api
+    public function getPackages(Request $request) {
+        try {
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+            $query = packageMaster::where('is_status', 1);
+
+            if ($request->has('package_id') && $request->package_id) {
+                $query->where('id', $request->package_id);
+            }
+
+            if ($request->has('service_id') && $request->service_id) {
+                $query->whereRaw('FIND_IN_SET(?, service_id)', [$request->service_id]);
+            }
+
+            $packages = $query->get();
+
+            $transformedPackages = $packages->map(function ($package) {
+                $serviceIds = explode(',', $package->service_id);
+                $services = DB::table('service_cat_master')
+                    ->whereIn('id', $serviceIds)
+                    ->select('id', 'sc_name')
+                    ->get();
+
+                return [
+                    'id' => $package->id,
+                    'pack_code' => $package->pack_code,
+                    'pack_name' => $package->pack_name,
+                    'pack_duration' => $package->pack_duration,
+                    'pack_other_faci' => $package->pack_other_faci,
+                    'pack_description' => $package->pack_description,
+                    'pack_net_amt' => $package->pack_net_amt,
+                    'package_logo_url' => $package->package_logo ? url('/') . '/' . $package->package_logo : null,
+                    'is_status' => $package->is_status,
+                    'services' => $services,
+                    // 'service_names' => $services->pluck('sc_name')->implode(', ')
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Packages retrieved successfully',
+                'data' => $transformedPackages,
+                'count' => $transformedPackages->count()
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to retrieve packages',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

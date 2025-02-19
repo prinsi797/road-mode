@@ -48,4 +48,7 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post('/create-role', [ApiController::class, 'createRole']);
     Route::get('/roles', [ApiController::class, 'getRoles']);
     Route::post('/update-roles/{id}', [ApiController::class, 'updateRole']);
+
+    // packge
+    Route::get('/packages', [ApiController::class, 'getPackages']);
 });
