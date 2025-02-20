@@ -427,6 +427,10 @@ class ApiController extends Controller {
                 'created_by' => auth()->user()->name,
             ]);
 
+            if ($user->sc_photo) {
+                $user->sc_photo = asset($user->sc_photo);
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => 'Service add successfully',
@@ -507,6 +511,10 @@ class ApiController extends Controller {
                 'is_status' =>  1,
                 'modified_by' => auth()->user()->name,
             ]);
+
+            if ($service->sc_photo) {
+                $service->sc_photo = asset($service->sc_photo);
+            }
 
             return response()->json([
                 'status' => true,
