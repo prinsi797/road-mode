@@ -49,6 +49,13 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::get('/roles', [ApiController::class, 'getRoles']);
     Route::post('/update-roles/{id}', [ApiController::class, 'updateRole']);
 
+    //Area master
+    Route::get('/area', [ApiController::class, 'Area']);
+    Route::post('/create-area', [ApiController::class, 'createArea']);
+    Route::post('/area-update', [ApiController::class, 'updateArea']);
+    Route::delete('/area-delete', [ApiController::class, 'areaDelete']);
+
     // packge
     Route::get('/packages', [ApiController::class, 'getPackages']);
+    Route::post('/add-pickup-inquiry', [ApiController::class, 'addPickupInquiry']);
 });

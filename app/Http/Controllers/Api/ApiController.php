@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\AreaMaster;
 use App\Models\BranchMaster;
 use App\Models\CityMaster;
 use App\Models\CompanyMaster;
+use App\Models\InquiryMaster;
 use App\Models\packageMaster;
 use JWTAuth;
 
@@ -1076,7 +1078,7 @@ class ApiController extends Controller {
             ], 500);
         }
     }
-    public function updateRole(Request $request, $id) {
+    public function updateRole(Request $request) {
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255', // Role name
@@ -1172,6 +1174,223 @@ class ApiController extends Controller {
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to retrieve packages',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // area master
+
+    public function Area(Request $request) {
+        try {
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            // $areas = AreaMaster::all();
+            $areas = AreaMaster::with('city')->get();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Area retrieved successfully',
+                'data' => $areas,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching roles',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function createArea(Request $request) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+            $data = $request->only('city_id', 'area_name', 'distance_from_branch');
+            $validator = Validator::make($data, [
+                'city_id' => 'required|exists:city_master,id',
+                'area_name' => 'required',
+                'distance_from_branch' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 200);
+            }
+            $area = AreaMaster::create([
+                'city_id' => $request->city_id,
+                'area_name' => $request->area_name,
+                'distance_from_branch' => $request->distance_from_branch
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Area add successfully',
+                'data' => $area
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching City',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateArea(Request $request) {
+        try {
+            $validator = Validator::make($request->all(), [
+                'city_id' => 'required|exists:city_master,id',
+                'area_name' => 'required',
+                'distance_from_branch' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $areaId = $request->input('area_id');
+            $area = AreaMaster::find($areaId);
+
+            if (!$area) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Area not found',
+                ], 404);
+            }
+
+            $area->city_id = $request->city_id;
+            $area->area_name = $request->area_name;
+            $area->distance_from_branch = $request->distance_from_branch;
+            $area->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Area updated successfully',
+                'data' => $area,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating the area',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function areaDelete(Request $request) {
+        try {
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+            $validator = Validator::make($request->all(), [
+                'area_id' => 'required|exists:area_master,id'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $validator->errors(),
+                ], 422);
+            }
+            $areaId = $request->input('area_id');
+            $area = AreaMaster::find($areaId);
+            if (!$area) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Area not found',
+                ], 404);
+            }
+            // $user->delete();
+            $area->forceDelete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Area deleted successfully',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while deleting the user',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // add pickup
+    public function addPickupInquiry(Request $request) {
+
+        try {
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
+
+            $validated = $request->validate([
+                'inq_from_online_web' => 'nullable|string',
+                'inq_job_no_id' => 'nullable|integer',
+                'inq_cust_id' => 'nullable|integer',
+                'inq_date' => 'required',
+                'inq_pick_req_date' => 'required',
+                'inq_slot_booking' => 'nullable',
+                'inq_pick_address' => 'required|string',
+                'inq_drop_address' => 'required|string',
+                'inq_city' => 'nullable|string',
+                'inq_branch_id' => 'nullable|integer',
+                'inq_package_id' => 'nullable|integer',
+                'inq_pks_s_id' => 'nullable|integer',
+                'inq_service_master_id' => 'nullable|integer',
+                'inq_des_from_customer' => 'nullable|string',
+                'inq_pickup_man_id' => 'nullable|integer',
+                'inq_desk_audio_link' => 'nullable|string',
+                'inq_is_confirm' => 'nullable',
+                'inq_is_confirm_timedate' => 'nullable',
+                'is_status' => 'nullable|string',
+                'created_by' => 'nullable|integer',
+            ]);
+
+            // Generate a unique inquiry code (e.g., INCQ001)
+            $lastInquiry = InquiryMaster::orderBy('id', 'desc')->first();
+            $lastCode = $lastInquiry ? intval(substr($lastInquiry->inq_code, 4)) : 0;
+            $newCode = 'INCQ' . str_pad($lastCode + 1, 3, '0', STR_PAD_LEFT);
+            $ticketCode = 'TICKET' . str_pad($lastCode + 1, 3, '0', STR_PAD_LEFT);
+
+            // Add the auto-generated code to the validated data
+            $validated['inq_code'] = $newCode;
+            $validated['inq_pick_tickit_code'] = $ticketCode;
+
+            // Save the inquiry to the database
+            $inquiry = InquiryMaster::create($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pickup inquiry added successfully.',
+                'data' => $inquiry
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add pickup inquiry.',
                 'error' => $e->getMessage()
             ], 500);
         }
