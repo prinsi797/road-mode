@@ -1377,7 +1377,7 @@ class ApiController extends Controller {
             $validated['inq_code'] = $newCode;
             $validated['inq_pick_tickit_code'] = $ticketCode;
             $validated['is_status'] = 0;
-            $validated['created_by'] = auth()->user()->name;
+            $validated['created_by'] = auth()->user()->id;
 
 
             if ($request->hasFile('inq_desk_audio_link')) {
