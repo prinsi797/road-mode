@@ -1362,24 +1362,39 @@ class ApiController extends Controller {
                 'inq_service_master_id' => 'nullable|integer',
                 'inq_des_from_customer' => 'nullable|string',
                 'inq_pickup_man_id' => 'nullable|integer',
-                'inq_desk_audio_link' => 'nullable|string',
+                'inq_desk_audio_link' => 'nullable|file|mimes:mp3',
                 'inq_is_confirm' => 'nullable',
                 'inq_is_confirm_timedate' => 'nullable',
                 'is_status' => 'nullable|string',
                 'created_by' => 'nullable|integer',
             ]);
 
-            // Generate a unique inquiry code (e.g., INCQ001)
             $lastInquiry = InquiryMaster::orderBy('id', 'desc')->first();
             $lastCode = $lastInquiry ? intval(substr($lastInquiry->inq_code, 4)) : 0;
             $newCode = 'INCQ' . str_pad($lastCode + 1, 3, '0', STR_PAD_LEFT);
             $ticketCode = 'TICKET' . str_pad($lastCode + 1, 3, '0', STR_PAD_LEFT);
 
-            // Add the auto-generated code to the validated data
             $validated['inq_code'] = $newCode;
             $validated['inq_pick_tickit_code'] = $ticketCode;
+            $validated['is_status'] = 0;
+            $validated['created_by'] = auth()->user()->name;
 
-            // Save the inquiry to the database
+
+            if ($request->hasFile('inq_desk_audio_link')) {
+                $audioFile = $request->file('inq_desk_audio_link');
+
+                $pickupFolder = public_path('pickup');
+
+                if (!file_exists($pickupFolder)) {
+                    mkdir($pickupFolder, 0755, true);
+                }
+
+                $fileName = time() . '_' . $audioFile->getClientOriginalName();
+                $audioFile->move($pickupFolder, $fileName);
+
+                $validated['inq_desk_audio_link'] = 'pickup/' . $fileName;
+            }
+
             $inquiry = InquiryMaster::create($validated);
 
             return response()->json([
