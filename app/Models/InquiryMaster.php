@@ -42,7 +42,7 @@ class InquiryMaster extends Model {
     }
 
     public function package() {
-        return $this->belongsTo(PackageMaster::class, 'inq_package_id');
+        return $this->belongsTo(packageMaster::class, 'inq_package_id');
     }
 
     public function customer() {
