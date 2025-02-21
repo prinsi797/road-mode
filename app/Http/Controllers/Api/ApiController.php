@@ -1423,7 +1423,7 @@ class ApiController extends Controller {
             'cust_city' => 'nullable|string|max:255',
             'cust_res_address' => 'nullable|string|max:255',
             'cust_pick_default_addr' => 'nullable|string|max:255',
-            'cust_email' => 'nullable|email|max:255',
+            'cust_email' => 'nullable|email|max:255|unique:customer_master',
             'password' => 'required|string|min:6',
             'cust_for_branch_id' => 'required|exists:branch_master,id',
             'cust_package_id' => 'nullable|exists:package_master_master,id',
