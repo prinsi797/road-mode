@@ -1417,12 +1417,6 @@ class ApiController extends Controller {
     public function customerRegister(Request $request) {
 
         $user = auth()->user();
-        // if (!$user) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'message' => 'Unauthorized access',
-        //     ], 401);
-        // }
 
         $validator = Validator::make($request->all(), [
             'cust_name' => 'required|string|max:255',
@@ -1430,7 +1424,7 @@ class ApiController extends Controller {
             'cust_res_address' => 'nullable|string|max:255',
             'cust_pick_default_addr' => 'nullable|string|max:255',
             'cust_email' => 'nullable|email|max:255',
-            'cust_password' => 'required|string|min:6',
+            'password' => 'required|string|min:6',
             'cust_for_branch_id' => 'required|exists:branch_master,id',
             'cust_package_id' => 'nullable|exists:package_master_master,id',
             'cust_mobile_no' => 'nullable|string|max:15',
@@ -1456,7 +1450,7 @@ class ApiController extends Controller {
             $customer->cust_res_address = $request->cust_res_address;
             $customer->cust_pick_default_addr = $request->cust_pick_default_addr;
             $customer->cust_email = $request->cust_email;
-            $customer->cust_password = bcrypt($request->cust_password);
+            $customer->password = bcrypt($request->password);
             $customer->cust_for_branch_id = $request->cust_for_branch_id;
             $customer->cust_package_id = $request->cust_package_id;
             $customer->is_package_selected = $request->is_package_selected;
@@ -1472,7 +1466,7 @@ class ApiController extends Controller {
             $customer->is_pack_expire = $request->is_pack_expire;
             $customer->is_renreable = $request->is_renreable;
             $customer->is_status = 1;
-            $customer->created_by = 'prinsi';
+            // $customer->created_by = $user->name;
             $customer->save();
 
             return response()->json([
