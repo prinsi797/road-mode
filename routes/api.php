@@ -58,4 +58,8 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     // packge
     Route::get('/packages', [ApiController::class, 'getPackages']);
     Route::post('/add-pickup-inquiry', [ApiController::class, 'addPickupInquiry']);
+
+    Route::get('/customer-get', [ApiController::class, 'getAuthenticatedCustomer']);
 });
+Route::post('/cutomer-register', [ApiController::class, 'customerRegister']);
+Route::post('/customer-login', [ApiController::class, 'customerLogin']);

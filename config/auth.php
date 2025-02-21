@@ -46,6 +46,11 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+
+        'customer-api' => [
+            'driver' => 'jwt',
+            'provider' => 'customer_master',
+        ],
     ],
 
     /*
@@ -71,6 +76,10 @@ return [
             'model' => App\Models\User::class,
         ],
 
+        'customer_master' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\CustomerMaster::class,
+        ],
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',

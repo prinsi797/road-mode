@@ -6,6 +6,7 @@ use App\Models\AreaMaster;
 use App\Models\BranchMaster;
 use App\Models\CityMaster;
 use App\Models\CompanyMaster;
+use App\Models\CustomerMaster;
 use App\Models\InquiryMaster;
 use App\Models\packageMaster;
 use JWTAuth;
@@ -1345,21 +1346,20 @@ class ApiController extends Controller {
                     'message' => 'Unauthorized access',
                 ], 401);
             }
-
             $validated = $request->validate([
                 'inq_from_online_web' => 'nullable|string',
                 'inq_job_no_id' => 'nullable|integer',
-                'inq_cust_id' => 'nullable|integer',
+                'inq_cust_id' => 'nullable',
                 'inq_date' => 'required',
                 'inq_pick_req_date' => 'required',
                 'inq_slot_booking' => 'nullable',
                 'inq_pick_address' => 'required|string',
                 'inq_drop_address' => 'required|string',
                 'inq_city' => 'nullable|string',
-                'inq_branch_id' => 'nullable|integer',
-                'inq_package_id' => 'nullable|integer',
-                'inq_pks_s_id' => 'nullable|integer',
-                'inq_service_master_id' => 'nullable|integer',
+                'inq_branch_id' => 'nullable',
+                'inq_package_id' => 'nullable',
+                'inq_pks_s_id' => 'nullable',
+                'inq_service_master_id' => 'nullable',
                 'inq_des_from_customer' => 'nullable|string',
                 'inq_pickup_man_id' => 'nullable|integer',
                 'inq_desk_audio_link' => 'nullable|file|mimes:mp3',
@@ -1376,7 +1376,7 @@ class ApiController extends Controller {
 
             $validated['inq_code'] = $newCode;
             $validated['inq_pick_tickit_code'] = $ticketCode;
-            $validated['is_status'] = 0;
+            $validated['is_status'] = 1;
             $validated['created_by'] = auth()->user()->id;
 
 
@@ -1397,10 +1397,12 @@ class ApiController extends Controller {
 
             $inquiry = InquiryMaster::create($validated);
 
+            $inquiryWithRelations = InquiryMaster::with(['branch', 'package', 'customer'])->find($inquiry->id);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pickup inquiry added successfully.',
-                'data' => $inquiry
+                'data' => $inquiryWithRelations
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -1408,6 +1410,172 @@ class ApiController extends Controller {
                 'message' => 'Failed to add pickup inquiry.',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    // customer register
+    public function customerRegister(Request $request) {
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized access',
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'cust_name' => 'required|string|max:255',
+            'cust_city' => 'nullable|string|max:255',
+            'cust_res_address' => 'nullable|string|max:255',
+            'cust_pick_default_addr' => 'nullable|string|max:255',
+            'cust_email' => 'nullable|email|max:255',
+            'cust_password' => 'required|string|min:6',
+            'cust_for_branch_id' => 'required|exists:branch_master,id',
+            'cust_package_id' => 'nullable|exists:package_master_master,id',
+            'cust_mobile_no' => 'nullable|string|max:15',
+            'cust_whtapp_no' => 'nullable|string|max:15',
+            'cust_com_id' => 'required|exists:company_master,id',
+            'cust_model_id' => 'required|exists:model_master,id',
+            'cust_vehicle_no' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors(),
+            ], 422);
+        }
+        $cust_code = $this->generateCustomerCode();
+
+        try {
+            $customer = new CustomerMaster();
+            $customer->cust_code = $cust_code;
+            $customer->cust_name = $request->cust_name;
+            $customer->cust_city = $request->cust_city;
+            $customer->cust_res_address = $request->cust_res_address;
+            $customer->cust_pick_default_addr = $request->cust_pick_default_addr;
+            $customer->cust_email = $request->cust_email;
+            $customer->cust_password = bcrypt($request->cust_password);
+            $customer->cust_for_branch_id = $request->cust_for_branch_id;
+            $customer->cust_package_id = $request->cust_package_id;
+            $customer->is_package_selected = $request->is_package_selected;
+            $customer->cust_pack_start_date = $request->cust_pack_start_date;
+            $customer->cust_pack_end_date = $request->cust_pack_end_date;
+            $customer->cust_is_pack_renew = $request->cust_is_pack_renew;
+            $customer->cust_is_noti_req = $request->cust_is_noti_req;
+            $customer->cust_mobile_no = $request->cust_mobile_no;
+            $customer->cust_whtapp_no = $request->cust_whtapp_no;
+            $customer->cust_com_id = $request->cust_com_id;
+            $customer->cust_model_id = $request->cust_model_id;
+            $customer->cust_vehicle_no = $request->cust_vehicle_no;
+            $customer->is_pack_expire = $request->is_pack_expire;
+            $customer->is_renreable = $request->is_renreable;
+            $customer->is_status = 1;
+            $customer->created_by = auth()->user()->name;
+            $customer->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Customer registered successfully',
+                'data' => $customer,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error during registration: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    private function generateCustomerCode() {
+        $lastCustomer = CustomerMaster::latest('id')->first();
+        if ($lastCustomer) {
+            $lastCode = $lastCustomer->cust_code;
+            $numericPart = (int) substr($lastCode, 4);
+            $nextNumericPart = $numericPart + 1;
+            $newCode = 'CUST' . str_pad($nextNumericPart, 3, '0', STR_PAD_LEFT);
+        } else {
+            $newCode = 'CUST001';
+        }
+
+        return $newCode;
+    }
+    public function customerLogin(Request $request) {
+        $credentials = $request->only('cust_email', 'password');
+
+        // Validation
+        $validator = Validator::make($credentials, [
+            'cust_email' => 'required|email',
+            'password' => 'required|string|min:6|max:50'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->messages()], 200);
+        }
+
+        try {
+            if (!$token = Auth::guard('customer-api')->attempt($credentials)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Login credentials are invalid.',
+                ], 400);
+            }
+        } catch (JWTException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Could not create token.',
+            ], 500);
+        }
+
+        $customer = Auth::guard('customer-api')->user();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Customer login successful',
+            'token' => $token,
+            'customer' => [
+                'id' => $customer->id,
+                'cust_name' => $customer->cust_name,
+                'cust_email' => $customer->cust_email,
+                'cust_mobile_no' => $customer->cust_mobile_no,
+            ]
+        ], 200);
+    }
+    public function getAuthenticatedCustomer(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'customer' => [
+                    'id' => $customer->id,
+                    'cust_name' => $customer->cust_name,
+                    'cust_email' => $customer->cust_email,
+                    'cust_mobile_no' => $customer->cust_mobile_no,
+                ]
+            ]);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token has expired'
+            ], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token is invalid'
+            ], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token not provided'
+            ], 401);
         }
     }
 }

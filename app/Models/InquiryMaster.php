@@ -37,4 +37,15 @@ class InquiryMaster extends Model {
         'modified_date',
         'is_deleted',
     ];
+    public function branch() {
+        return $this->belongsTo(BranchMaster::class, 'inq_branch_id');
+    }
+
+    public function package() {
+        return $this->belongsTo(PackageMaster::class, 'inq_package_id');
+    }
+
+    public function customer() {
+        return $this->belongsTo(CustomerMaster::class, 'inq_cust_id');
+    }
 }
