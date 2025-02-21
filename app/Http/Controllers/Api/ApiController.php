@@ -1472,7 +1472,7 @@ class ApiController extends Controller {
             $customer->is_pack_expire = $request->is_pack_expire;
             $customer->is_renreable = $request->is_renreable;
             $customer->is_status = 1;
-            $customer->created_by = auth()->user()->name;
+            $customer->created_by = 'prinsi';
             $customer->save();
 
             return response()->json([
