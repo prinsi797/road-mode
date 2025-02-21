@@ -1417,12 +1417,12 @@ class ApiController extends Controller {
     public function customerRegister(Request $request) {
 
         $user = auth()->user();
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Unauthorized access',
-            ], 401);
-        }
+        // if (!$user) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'Unauthorized access',
+        //     ], 401);
+        // }
 
         $validator = Validator::make($request->all(), [
             'cust_name' => 'required|string|max:255',
