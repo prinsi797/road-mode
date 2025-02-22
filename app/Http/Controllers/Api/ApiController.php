@@ -9,6 +9,7 @@ use App\Models\CompanyMaster;
 use App\Models\CustomerMaster;
 use App\Models\InquiryMaster;
 use App\Models\packageMaster;
+use App\Models\ModelMaster;
 use JWTAuth;
 
 use App\Models\User;
@@ -1250,6 +1251,13 @@ class ApiController extends Controller {
 
     public function updateArea(Request $request) {
         try {
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access',
+                ], 401);
+            }
             $validator = Validator::make($request->all(), [
                 'city_id' => 'required|exists:city_master,id',
                 'area_name' => 'required',
@@ -1570,6 +1578,423 @@ class ApiController extends Controller {
                 'success' => false,
                 'message' => 'Token not provided'
             ], 401);
+        }
+    }
+
+    public function getBranch(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            $branches = BranchMaster::with('citymaster', 'areamaster')->get()->map(function ($branch) {
+                $branch->br_photo = asset($branch->br_photo);
+                $branch->br_sign = asset($branch->br_sign);
+                return $branch;
+            });;
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Branch retrieved successfully',
+                'data' => $branches,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching roles',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function createBranch(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            $data = $request->only('br_address', 'br_owner_name', 'br_owner_email', 'br_mobile', 'br_city', 'br_photo', 'br_sign', 'br_state', 'br_start_Date', 'br_end_date', 'br_renew_year', 'br_connection_link', 'br_db_name', 'br_user_name', 'br_password', 'br_city_id', 'br_area_id', 'br_pin_code');
+
+            $validator = Validator::make($data, [
+                'br_address' => 'required|string|max:255',
+                'br_owner_name' => 'required|string|max:255',
+                'br_owner_email' => 'required|email|max:255',
+                'br_mobile' => 'required|string|max:15',
+                'br_city' => 'nullable',
+                'br_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'br_sign' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'br_state' => 'required|string|max:255',
+                'br_start_Date' => 'required|date',
+                'br_end_date' => 'nullable|date|after_or_equal:br_start_Date',
+                'br_renew_year' => 'nullable',
+                'br_connection_link' => 'nullable',
+                'br_db_name' => 'nullable|string|max:255',
+                'br_user_name' => 'nullable|string|max:255',
+                'br_password' => 'nullable|string|max:255',
+                'br_city_id' => 'required|exists:city_master,id',
+                'br_area_id' => 'required|exists:area_master,id',
+                'br_pin_code' => 'nullable|string|max:10',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 200);
+            }
+            $branch_code = $this->generateBranchCode();
+
+            $photoPath = null;
+            if ($request->hasFile('br_photo')) {
+                $photoFile = $request->file('br_photo');
+                $photoDirectory = public_path('branches');
+
+                if (!file_exists($photoDirectory)) {
+                    mkdir($photoDirectory, 0777, true);
+                }
+
+                $photoName = uniqid() . '_' . time() . '.' . $photoFile->getClientOriginalExtension();
+                $photoFile->move($photoDirectory, $photoName);
+                $photoPath = 'branches/' . $photoName;
+            }
+
+            $signPath = null;
+            if ($request->hasFile('br_sign')) {
+                $signFile = $request->file('br_sign');
+                $signDirectory = public_path('signatures');
+
+                if (!file_exists($signDirectory)) {
+                    mkdir($signDirectory, 0777, true);
+                }
+
+                $signName = uniqid() . '_' . time() . '.' . $signFile->getClientOriginalExtension();
+                $signFile->move($signDirectory, $signName);
+                $signPath = 'signatures/' . $signName;
+            }
+
+            $branch = BranchMaster::create([
+                'br_code' => $branch_code,
+                'br_address' => $request->br_address,
+                'br_owner_name' => $request->br_owner_name,
+                'br_owner_email' => $request->br_owner_email,
+                'br_mobile' => $request->br_mobile,
+                'br_city' => $request->br_city,
+                'br_photo' => $photoPath,
+                'br_sign' => $signPath,
+                'br_state' => $request->br_state,
+                'br_start_Date' => $request->br_start_Date,
+                'br_end_date' => $request->br_end_date,
+                'br_renew_year' => $request->br_renew_year,
+                'br_connection_link' => $request->br_connection_link,
+                'br_db_name' => $request->br_db_name,
+                'br_user_name' => $request->br_user_name,
+                'br_password' => bcrypt($request->br_password),
+                'br_city_id' => $request->br_city_id,
+                'br_area_id' => $request->br_area_id,
+                'br_pin_code' => $request->br_pin_code,
+                'is_status' => 1,
+                'created_by' => auth()->user()->name,
+            ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Branch add successfully',
+                'data' => $branch
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching City',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function generateBranchCode() {
+        $lastBranch = BranchMaster::latest('id')->first();
+        return 'BR' . str_pad(($lastBranch->id ?? 0) + 1, 5, '0', STR_PAD_LEFT);
+    }
+
+    public function updateBranch(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+            $validator = Validator::make($request->all(), [
+                'br_address' => 'required|string|max:255',
+                'br_owner_name' => 'required|string|max:255',
+                'br_owner_email' => 'required|email|max:255',
+                'br_mobile' => 'required|string|max:15',
+                'br_city' => 'nullable',
+                'br_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'br_sign' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'br_state' => 'required|string|max:255',
+                'br_start_Date' => 'required|date',
+                'br_end_date' => 'nullable|date|after_or_equal:br_start_Date',
+                'br_renew_year' => 'nullable',
+                'br_connection_link' => 'nullable',
+                'br_db_name' => 'nullable|string|max:255',
+                'br_user_name' => 'nullable|string|max:255',
+                'br_password' => 'nullable|string|max:255',
+                'br_city_id' => 'required|exists:city_master,id',
+                'br_area_id' => 'required|exists:area_master,id',
+                'br_pin_code' => 'nullable|string|max:10',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $branchId = $request->input('branch_id');
+            $branch = BranchMaster::find($branchId);
+
+            if (!$branch) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Area not found',
+                ], 404);
+            }
+            if ($request->hasFile('br_photo')) {
+                if ($branch->br_photo) {
+                    $oldPhotoPath = public_path($branch->br_photo);
+                    if (file_exists($oldPhotoPath)) {
+                        unlink($oldPhotoPath);
+                    }
+                }
+
+                $photoFile = $request->file('br_photo');
+                $photoName = time() . '_photo.' . $photoFile->getClientOriginalExtension();
+                $photoPath = 'branches/' . $photoName;
+                $photoFile->move(public_path('branches'), $photoName);
+            } else {
+                $photoPath = $branch->br_photo;
+            }
+
+            // Handling br_sign
+            if ($request->hasFile('br_sign')) {
+                if ($branch->br_sign) {
+                    $oldSignPath = public_path($branch->br_sign);
+                    if (file_exists($oldSignPath)) {
+                        unlink($oldSignPath);
+                    }
+                }
+                $signFile = $request->file('br_sign');
+                $signName = time() . '_sign.' . $signFile->getClientOriginalExtension();
+                $signPath = 'signatures/' . $signName;
+                $signFile->move(public_path('signatures'), $signName);
+            } else {
+                $signPath = $branch->br_sign;
+            }
+
+            $branch->br_address = $request->br_address;
+            $branch->br_owner_name = $request->br_owner_name;
+            $branch->br_owner_email = $request->br_owner_email;
+            $branch->br_mobile = $request->br_mobile;
+            $branch->br_city = $request->br_city;
+            $branch->br_photo = $photoPath;
+            $branch->br_sign = $signPath;
+            $branch->br_state = $request->br_state;
+            $branch->br_start_Date = $request->br_start_Date;
+            $branch->br_end_date = $request->br_end_date;
+            $branch->br_renew_year = $request->br_renew_year;
+            $branch->br_connection_link = $request->br_connection_link;
+            $branch->br_db_name = $request->br_db_name;
+            $branch->br_user_name = $request->br_user_name;
+            $branch->br_password = $request->filled('br_password') ? bcrypt($request->br_password) : $branch->br_password; // Password update only if changed
+            $branch->br_city_id = $request->br_city_id;
+            $branch->br_area_id = $request->br_area_id;
+            $branch->br_pin_code = $request->br_pin_code;
+            $branch->is_status = 1;
+            $branch->modified_by = Auth::guard('customer-api')->user()->cust_name;
+            $branch->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Area updated successfully',
+                'data' => $branch,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching City',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function branchDelete(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+            $validator = Validator::make($request->all(), [
+                'branch_id' => 'required|exists:branch_master,id'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $validator->errors(),
+                ], 422);
+            }
+            $branchId = $request->input('branch_id');
+            $branch = BranchMaster::find($branchId);
+            if (!$branch) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Branch not found',
+                ], 404);
+            }
+            // $user->delete();
+            $branch->forceDelete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Branch deleted successfully',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while deleting the user',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // without token
+    public function Branch(Request $request) {
+        try {
+
+            $branches = BranchMaster::with('citymaster', 'areamaster')->get()->map(function ($branch) {
+                $branch->br_photo = asset($branch->br_photo);
+                $branch->br_sign = asset($branch->br_sign);
+                return $branch;
+            });;
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Branch retrieved successfully',
+                'data' => $branches,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching roles',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function Packages(Request $request) {
+        try {
+
+            $query = packageMaster::where('is_status', 1);
+
+            if ($request->has('package_id') && $request->package_id) {
+                $query->where('id', $request->package_id);
+            }
+
+            if ($request->has('service_id') && $request->service_id) {
+                $query->whereRaw('FIND_IN_SET(?, service_id)', [$request->service_id]);
+            }
+
+            $packages = $query->get();
+
+            $transformedPackages = $packages->map(function ($package) {
+                $serviceIds = explode(',', $package->service_id);
+                $services = DB::table('service_cat_master')
+                    ->whereIn('id', $serviceIds)
+                    ->select('id', 'sc_name')
+                    ->get();
+
+                return [
+                    'id' => $package->id,
+                    'pack_code' => $package->pack_code,
+                    'pack_name' => $package->pack_name,
+                    'pack_duration' => $package->pack_duration,
+                    'pack_other_faci' => $package->pack_other_faci,
+                    'pack_description' => $package->pack_description,
+                    'pack_net_amt' => $package->pack_net_amt,
+                    'package_logo_url' => $package->package_logo ? url('/') . '/' . $package->package_logo : null,
+                    'is_status' => $package->is_status,
+                    'services' => $services,
+                    // 'service_names' => $services->pluck('sc_name')->implode(', ')
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Packages retrieved successfully',
+                'data' => $transformedPackages,
+                'count' => $transformedPackages->count()
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to retrieve packages',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function Companies(Request $request) {
+        try {
+            $company = CompanyMaster::get()->map(function ($company) {
+                $company->com_logo = asset($company->com_logo);
+                return $company;
+            });;
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Company retrieved successfully',
+                'data' => $company,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching roles',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function Model(Request $request) {
+        try {
+
+            $models = ModelMaster::with('companymaster')->get()->map(function ($model) {
+                $model->model_photo = asset($model->model_photo);
+                return $model;
+            });;
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Model retrieved successfully',
+                'data' => $models,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching roles',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }

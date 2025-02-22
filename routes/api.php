@@ -60,6 +60,18 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post('/add-pickup-inquiry', [ApiController::class, 'addPickupInquiry']);
 
     Route::get('/customer-get', [ApiController::class, 'getAuthenticatedCustomer']);
+    //branch
+    Route::get('/branch', [ApiController::class, 'getBranch']);
+    Route::post('/branch-create', [ApiController::class, 'createBranch']);
+    Route::post('/branch-update', [ApiController::class, 'updateBranch']);
+    Route::delete('/branch-delete', [ApiController::class, 'branchDelete']);
 });
 Route::post('/cutomer-register', [ApiController::class, 'customerRegister']);
 Route::post('/customer-login', [ApiController::class, 'customerLogin']);
+
+//without token
+
+Route::get('/get-branch', [ApiController::class, 'Branch']);
+Route::get('/get-packages', [ApiController::class, 'Packages']);
+Route::get('/get-company', [ApiController::class, 'Companies']);
+Route::get('/get-model', [ApiController::class, 'Model']);
