@@ -20,7 +20,7 @@ Route::post('register', [ApiController::class, 'register']);
 
 Route::group(['middleware' => ['jwt.verify']], function () {
     Route::get('logout', [ApiController::class, 'logout']);
-    Route::get('get-service', [ApiController::class, 'getService']);
+    Route::get('/get-service', [ApiController::class, 'getService']);
     Route::get('/get-companies-for-vehicle', [ApiController::class, 'getCompaniesForVehicle']);
     Route::get('/get-vehicle-models', [ApiController::class, 'getVehicleModels']);
     Route::get('/services', [ApiController::class, 'getServicesByVehicle']);
@@ -65,11 +65,25 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post('/branch-create', [ApiController::class, 'createBranch']);
     Route::post('/branch-update', [ApiController::class, 'updateBranch']);
     Route::delete('/branch-delete', [ApiController::class, 'branchDelete']);
+
+    Route::get('/get-my-request', [ApiController::class, 'getMyRequest']);
+
+    Route::post('/update-company', [ApiController::class, 'updateCompany']);
+    Route::delete('/delete-company', [ApiController::class, 'deleteCompany']);
+
+    //model master
+    Route::post('/create-model', [ApiController::class, 'createModel']);
+
+    //create package
+    Route::post('/create-package', [ApiController::class, 'createPackage']);
+    Route::post('/update-package', [ApiController::class, 'updatePackage']);
+    Route::delete('/delete-package', [ApiController::class, 'deletePackage']);
 });
 Route::post('/cutomer-register', [ApiController::class, 'customerRegister']);
 Route::post('/customer-login', [ApiController::class, 'customerLogin']);
 
 //without token
+Route::get('/company', [ApiController::class, 'Company']);
 
 Route::get('/get-branch', [ApiController::class, 'Branch']);
 Route::get('/get-packages', [ApiController::class, 'Packages']);

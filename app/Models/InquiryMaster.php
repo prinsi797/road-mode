@@ -29,6 +29,9 @@ class InquiryMaster extends Model {
         'inq_pickup_man_id',
         'inq_pick_tickit_code',
         'inq_desk_audio_link',
+        'vehicle_id',
+        'company_id',
+        'model_id',
         'inq_is_confirm',
         'inq_is_confirm_timedate',
         'is_status',
@@ -47,5 +50,17 @@ class InquiryMaster extends Model {
 
     public function customer() {
         return $this->belongsTo(CustomerMaster::class, 'inq_cust_id');
+    }
+
+    public function company() {
+        return $this->belongsTo(CompanyMaster::class, 'company_id');
+    }
+
+    public function model() {
+        return $this->belongsTo(ModelMaster::class, 'model_id');
+    }
+
+    public function vehicle() {
+        return $this->belongsTo(Vehicle::class, 'vehicle_id');
     }
 }

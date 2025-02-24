@@ -92,9 +92,51 @@ class ApiController extends Controller {
         ], Response::HTTP_OK);
     }
 
+    // public function login(Request $request) {
+    //     $credentials = $request->only('email', 'password');
+
+    //     $validator = Validator::make($credentials, [
+    //         'email' => 'required|email',
+    //         'password' => 'required|string|min:6|max:50'
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json(['error' => $validator->messages()], 200);
+    //     }
+
+    //     try {
+    //         if (! $token = JWTAuth::attempt($credentials)) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'Login credentials are invalid.',
+    //             ], 400);
+    //         }
+    //     } catch (JWTException $e) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Could not create token.',
+    //         ], 500);
+    //     }
+
+    //     $user = Auth::user();
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'User login successful',
+    //         'token' => $token,
+    //         'user' => [
+    //             'id' => $user->id,
+    //             'name' => $user->name,
+    //             'email' => $user->email,
+    //             'phone_number' => $user->phone_number,
+    //             'role' => $user->roles->pluck('name')->first()
+    //         ]
+    //     ], 200);
+    // }
     public function login(Request $request) {
         $credentials = $request->only('email', 'password');
 
+        // Validation
         $validator = Validator::make($credentials, [
             'email' => 'required|email',
             'password' => 'required|string|min:6|max:50'
@@ -105,35 +147,56 @@ class ApiController extends Controller {
         }
 
         try {
-            if (! $token = JWTAuth::attempt($credentials)) {
+            // Check in User Table
+            if ($token = JWTAuth::attempt($credentials)) {
+                $user = Auth::user();
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Login credentials are invalid.',
-                ], 400);
+                    'success' => true,
+                    'message' => 'User login successful',
+                    'token' => $token,
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone_number' => $user->phone_number,
+                        'role' => $user->roles->pluck('name')->first()
+                    ]
+                ], 200);
             }
+
+            // Check in Customer Table if User Login Fails
+            $customerCredentials = [
+                'cust_email' => $request->email,
+                'password' => $request->password
+            ];
+
+            if ($token = Auth::guard('customer-api')->attempt($customerCredentials)) {
+                $customer = Auth::guard('customer-api')->user();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Customer login successful',
+                    'token' => $token,
+                    'customer' => [
+                        'id' => $customer->id,
+                        'cust_name' => $customer->cust_name,
+                        'cust_email' => $customer->cust_email,
+                        'cust_mobile_no' => $customer->cust_mobile_no,
+                        'role' => "customer",
+                    ]
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Login credentials are invalid.',
+            ], 400);
         } catch (JWTException $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Could not create token.',
             ], 500);
         }
-
-        $user = Auth::user();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'User login successful',
-            'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone_number' => $user->phone_number,
-                'role' => $user->roles->pluck('name')->first()
-            ]
-        ], 200);
     }
-
 
     public function logout(Request $request) {
         try {
@@ -152,7 +215,8 @@ class ApiController extends Controller {
 
     public function getService(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -191,7 +255,8 @@ class ApiController extends Controller {
 
     public function getCompaniesForVehicle(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -229,7 +294,8 @@ class ApiController extends Controller {
     }
     public function getVehicleModels(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -279,7 +345,8 @@ class ApiController extends Controller {
     }
     public function getServicesByVehicle(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -349,7 +416,8 @@ class ApiController extends Controller {
     }
     public function serviceCategory(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -386,7 +454,8 @@ class ApiController extends Controller {
     }
     public function createService(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -450,7 +519,8 @@ class ApiController extends Controller {
     }
     public function updateService(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -536,7 +606,8 @@ class ApiController extends Controller {
     }
     public function deleteService(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -589,7 +660,8 @@ class ApiController extends Controller {
     // city master
     public function city(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -623,7 +695,8 @@ class ApiController extends Controller {
 
     public function createCity(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -661,7 +734,8 @@ class ApiController extends Controller {
 
     public function updateCity(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -710,7 +784,8 @@ class ApiController extends Controller {
     }
     public function deleteCity(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -760,7 +835,8 @@ class ApiController extends Controller {
     // user get
     public function User(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -800,7 +876,8 @@ class ApiController extends Controller {
 
     public function createUser(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -1212,7 +1289,8 @@ class ApiController extends Controller {
 
     public function createArea(Request $request) {
         try {
-            $user = auth()->user();
+            // $user = auth()->user();
+            $user = Auth::guard('api')->user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -1371,6 +1449,9 @@ class ApiController extends Controller {
                 'inq_des_from_customer' => 'nullable|string',
                 'inq_pickup_man_id' => 'nullable|integer',
                 'inq_desk_audio_link' => 'nullable|file|mimes:mp3',
+                'vehicle_id' => 'nullable|exists:vehicles,id',
+                'company_id' => 'nullable|exists:company_master,id',
+                'model_id' => 'nullable|exists:model_master,id',
                 'inq_is_confirm' => 'nullable',
                 'inq_is_confirm_timedate' => 'nullable',
                 'is_status' => 'nullable|string',
@@ -1405,7 +1486,7 @@ class ApiController extends Controller {
 
             $inquiry = InquiryMaster::create($validated);
 
-            $inquiryWithRelations = InquiryMaster::with(['branch', 'package', 'customer'])->find($inquiry->id);
+            $inquiryWithRelations = InquiryMaster::with(['branch', 'package', 'customer', 'company', 'model', 'vehicle'])->find($inquiry->id);
 
             return response()->json([
                 'success' => true,
@@ -1424,7 +1505,8 @@ class ApiController extends Controller {
     // customer register
     public function customerRegister(Request $request) {
 
-        $user = auth()->user();
+        // $user = auth()->user();
+        $user = Auth::guard('api')->user();
 
         $validator = Validator::make($request->all(), [
             'cust_name' => 'required|string|max:255',
@@ -1993,6 +2075,456 @@ class ApiController extends Controller {
             return response()->json([
                 'status' => false,
                 'message' => 'An error occurred while fetching roles',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getMyRequest() {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            $inquiries = DB::table('inquiry_master')
+                ->where('inq_cust_id', $customer->id)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $inquiries
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateCompany(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'com_name' => 'required|string|max:255',
+                'vehical_id' => 'required|exists:vehicles,id',
+                'com_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $companyId = $request->input('company_id');
+            $company = CompanyMaster::find($companyId);
+
+            if (!$company) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Company not found',
+                ], 404);
+            }
+            if ($request->hasFile('com_logo')) {
+                if ($company->com_logo) {
+                    $oldPhotoPath = public_path($company->com_logo);
+                    if (file_exists($oldPhotoPath)) {
+                        unlink($oldPhotoPath);
+                    }
+                }
+
+                $photoFile = $request->file('com_logo');
+                $photoName = time() . '_photo.' . $photoFile->getClientOriginalExtension();
+                $photoPath = 'company/' . $photoName;
+                $photoFile->move(public_path('company'), $photoName);
+            } else {
+                $photoPath = $company->com_logo;
+            }
+
+            $company->com_name = $request->com_name;
+            $company->vehical_id = $request->vehical_id;
+            $company->com_logo = $photoPath;
+            $company->is_status = 1;
+            $company->modified_by = Auth::guard('customer-api')->user()->cust_name;
+            $company->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Company updated successfully',
+                'data' => [
+                    'id' => $company->id,
+                    'com_code' => $company->com_code,
+                    'com_name' => $company->com_name,
+                    'com_logo' => url($company->com_logo),
+                    'is_status' => $company->is_status,
+                    'created_by' => $company->created_by,
+                    'modified_by' => $company->modified_by,
+                    'created_at' => $company->created_at,
+                    'updated_at' => $company->updated_at,
+                    'vehical_id' => $company->vehical_id
+                ],
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching Company',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function deleteCompany(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+            $validator = Validator::make($request->all(), [
+                'company_id' => 'required|exists:company_master,id'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $validator->errors(),
+                ], 422);
+            }
+            $companyId = $request->input('company_id');
+            $company = CompanyMaster::find($companyId);
+            if (!$company) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Company not found',
+                ], 404);
+            }
+            // $user->delete();
+            $company->forceDelete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Company deleted successfully',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while deleting the Company',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function createModel(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            $data = $request->only('model_name', 'model_photo', 'com_id', 'model_description');
+
+            $validator = Validator::make($data, [
+                'model_name' => 'required|string|max:255',
+                'model_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'com_id' => 'required|exists:company_master,id',
+                'model_description' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 200);
+            }
+            $model_code = $this->generateModelCode();
+
+            $photoPath = null;
+            if ($request->hasFile('model_photo')) {
+                $photoFile = $request->file('model_photo');
+                $photoDirectory = public_path('models');
+
+                if (!file_exists($photoDirectory)) {
+                    mkdir($photoDirectory, 0777, true);
+                }
+
+                $photoName = uniqid() . '_' . time() . '.' . $photoFile->getClientOriginalExtension();
+                $photoFile->move($photoDirectory, $photoName);
+                $photoPath = 'models/' . $photoName;
+            }
+
+            $model = ModelMaster::create([
+                'model_code' => $model_code,
+                'model_name' => $request->model_name,
+                'model_photo' => $photoPath,
+                'com_id' => $request->com_id,
+                'model_description' => $request->model_description,
+                'is_status' => 1,
+                'created_by' => Auth::guard('customer-api')->user()->cust_name,
+            ]);
+            $model->load('companymaster');
+            return response()->json([
+                'status' => true,
+                'message' => 'Model add successfully',
+                'data' => [
+                    'model_code' => $model->model_code,
+                    'model_name' => $model->model_name,
+                    'model_photo' => $model->model_photo ? asset($model->model_photo) : null, // Full image URL
+                    'com_id' => $model->com_id,
+                    'model_description' => $model->model_description,
+                    'created_by' => $model->created_by,
+                    'company_details' => $model->companymaster ? [
+                        'company_id' => $model->companymaster->id,
+                        'company_name' => $model->companymaster->com_name,
+                        'company_code' => $model->companymaster->com_code,
+                        'company_logo' => $model->companymaster->com_logo ? asset($model->companymaster->com_logo) : null,
+                    ] : null,
+                ]
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching Model',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    private function generateModelCode() {
+        $lastBranch = ModelMaster::latest('id')->first();
+        return 'MODEL' . str_pad(($lastBranch->id ?? 0) + 1, 5, '0', STR_PAD_LEFT);
+    }
+
+    public function createPackage(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            $data = $request->only('pack_name', 'pack_other_faci', 'pack_description', 'pack_net_amt', 'pack_duration', 'package_logo', 'service_id');
+
+            $serviceIds = $request->service_id;
+
+            if (is_string($serviceIds)) {
+                $serviceIds = json_decode($serviceIds, true);
+            }
+
+            if (!is_array($serviceIds)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid service_id format. It should be an array.',
+                ], 400);
+            }
+
+            // Convert service_id array to a comma-separated string
+            $serviceIdsString = implode(',', $serviceIds);
+            // Validate request data
+            $validator = Validator::make($data, [
+                'pack_name' => 'required|string|max:255',
+                'pack_other_faci' => 'required|string',
+                'pack_description' => 'required',
+                'pack_net_amt' => 'required',
+                'pack_duration' => 'nullable',
+                'package_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'service_id' => 'required|array',
+                'service_id.*' => 'required|exists:service_cat_master,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 200);
+            }
+
+            // Generate package code
+            $pack_code = $this->generatePackageCode();
+
+            $photoPath = null;
+            if ($request->hasFile('package_logo')) {
+                $photoFile = $request->file('package_logo');
+                $photoDirectory = public_path('packages');
+
+                if (!file_exists($photoDirectory)) {
+                    mkdir($photoDirectory, 0777, true);
+                }
+
+                $photoName = uniqid() . '_' . time() . '.' . $photoFile->getClientOriginalExtension();
+                $photoFile->move($photoDirectory, $photoName);
+                $photoPath = 'packages/' . $photoName;
+            }
+
+            // Store package data in the database
+            $package = packageMaster::create([
+                'pack_code' => $pack_code,
+                'service_id' => $serviceIdsString, // Store as a comma-separated string
+                'pack_name' => $request->pack_name,
+                'pack_duration' => $request->pack_duration,
+                'pack_other_faci' => $request->pack_other_faci,
+                'pack_description' => $request->pack_description,
+                'pack_net_amt' => $request->pack_net_amt,
+                'package_logo' => $photoPath,
+                'is_status' => 1,
+                'created_by' => $customer->cust_name,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Package added successfully',
+                'data' => $package,
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while creating the package',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    private function generatePackageCode() {
+        $lastBranch = packageMaster::latest('id')->first();
+        return 'PACK' . str_pad(($lastBranch->id ?? 0) + 1, 5, '0', STR_PAD_LEFT);
+    }
+
+    public function updatePackage(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            // Validate the incoming request
+            $validator = Validator::make($request->all(), [
+                'package_id' => 'required|exists:package_master_master,id',
+                'pack_name' => 'sometimes|string|max:255',
+                'pack_other_faci' => 'sometimes|string',
+                'pack_description' => 'sometimes',
+                'pack_net_amt' => 'sometimes',
+                'pack_duration' => 'nullable',
+                'package_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'service_id' => 'sometimes|array',
+                'service_id.*' => 'exists:service_cat_master,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 200);
+            }
+
+            // Fetch the package to update
+            $package = packageMaster::findOrFail($request->package_id);
+
+            // Handle service_id array
+            $serviceIds = $request->service_id;
+            if (is_string($serviceIds)) {
+                $serviceIds = json_decode($serviceIds, true);
+            }
+            if (is_array($serviceIds)) {
+                $serviceIds = implode(',', $serviceIds);
+            }
+
+            // Handle package_logo upload if provided
+            if ($request->hasFile('package_logo')) {
+                $photoFile = $request->file('package_logo');
+                $photoDirectory = public_path('packages');
+
+                if (!file_exists($photoDirectory)) {
+                    mkdir($photoDirectory, 0777, true);
+                }
+
+                $photoName = uniqid() . '_' . time() . '.' . $photoFile->getClientOriginalExtension();
+                $photoFile->move($photoDirectory, $photoName);
+                $package->package_logo = 'packages/' . $photoName;
+            }
+
+            // Update package fields
+            $package->update(array_filter([
+                'pack_name' => $request->pack_name,
+                'pack_duration' => $request->pack_duration,
+                'pack_other_faci' => $request->pack_other_faci,
+                'pack_description' => $request->pack_description,
+                'pack_net_amt' => $request->pack_net_amt,
+                'service_id' => $serviceIds,
+                'updated_by' => $customer->cust_name,
+            ]));
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Package updated successfully',
+                'data' => $package,
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating the package',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function deletePackage(Request $request) {
+        try {
+            $customer = Auth::guard('customer-api')->user();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+            $validator = Validator::make($request->all(), [
+                'package_id' => 'required|exists:package_master_master,id'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $validator->errors(),
+                ], 422);
+            }
+            $packageId = $request->input('package_id');
+            $package = packageMaster::find($packageId);
+            if (!$package) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Package not found',
+                ], 404);
+            }
+            // $user->delete();
+            $package->forceDelete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Package deleted successfully',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while deleting the Package',
                 'error' => $e->getMessage(),
             ], 500);
         }

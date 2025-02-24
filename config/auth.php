@@ -42,9 +42,8 @@ return [
         ],
 
         'api' => [
-            'driver' => 'token',
+            'driver' => 'jwt', // JWT driver use karna zaroori hai
             'provider' => 'users',
-            'hash' => false,
         ],
 
         'customer-api' => [
