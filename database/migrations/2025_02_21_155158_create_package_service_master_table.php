@@ -14,7 +14,7 @@ class CreatePackageServiceMasterTable extends Migration {
         Schema::create('package_service_master', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cust_id')->constrained('customer_master')->onDelete('cascade');
-            $table->foreignId('pack_id')->constrained('package_master')->onDelete('cascade');
+            $table->foreignId('pack_id')->constrained('package_master_master')->onDelete('cascade');
             $table->date('service_date')->nullable();
             $table->string('job_no_id')->nullable();
             $table->date('actual_date')->nullable();
