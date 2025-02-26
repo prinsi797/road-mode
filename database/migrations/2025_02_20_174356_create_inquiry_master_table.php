@@ -34,7 +34,9 @@ class CreateInquiryMasterTable extends Migration {
             $table->string('inq_desk_audio_link')->nullable();
             $table->boolean('inq_is_confirm')->default(false);
             $table->timestamp('inq_is_confirm_timedate')->nullable();
-
+            $table->integer('vehicle_id')->nullable();
+            $table->integer('company_id')->nullable();
+            $table->integer('model_id')->nullable();
             $table->string('is_status')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('modified_by')->nullable();
