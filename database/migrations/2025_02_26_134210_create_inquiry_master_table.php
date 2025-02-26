@@ -24,7 +24,7 @@ class CreateInquiryMasterTable extends Migration {
             $table->text('inq_drop_address')->nullable();
             $table->string('inq_city')->nullable();
             $table->foreignId('inq_branch_id')->constrained('branch_master')->onDelete('cascade')->nullable();
-            $table->foreignId('inq_package_id')->constrained('package_master')->onDelete('cascade')->nullable();
+            $table->foreignId('inq_package_id')->constrained('package_master_master')->onDelete('cascade')->nullable();
             $table->foreignId('inq_pks_s_id')->constrained('package_service_master')->onDelete('cascade')->nullable();
 
             $table->unsignedBigInteger('inq_service_master_id')->nullable();
